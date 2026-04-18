@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Which Future Will You Inhabit?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: background 0.6s ease, color 0.6s ease;
+}
+
+body.dark { background: #0a0a0a; color: #e8e8e8; }
+body.light { background: #fafafa; color: #111; }
+
+.container {
+  max-width: 640px;
+  width: 100%;
+  padding: 20px;
+}
+
+/* --- START SCREEN (dark) --- */
+#start-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+}
+
+#start-screen h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.dark #start-screen h1 { color: #fff; }
+
+#start-screen .subtitle {
+  font-size: 1.05rem;
+  color: #888;
+  margin-bottom: 12px;
+  max-width: 420px;
+  line-height: 1.5;
+}
+
+#start-screen .fork-preview {
+  display: flex;
+  gap: 10px;
+  margin: 24px 0 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.fork-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.fork-pill.creator  { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.fork-pill.longevity { background: rgba(16,185,129,0.15); color: #34d399; }
+.fork-pill.bci      { background: rgba(139,92,246,0.15); color: #a78bfa; }
+.fork-pill.space    { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.fork-pill.upload   { background: rgba(239,68,68,0.15); color: #f87171; }
+
+#start-screen .credit {
+  font-size: 0.8rem;
+  color: #555;
+  margin-bottom: 32px;
+}
+
+.btn-start {
+  padding: 16px 48px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: 2px solid #fff;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.btn-start:hover {
+  background: #fff;
+  color: #0a0a0a;
+}
+
+/* --- PROGRESS BAR --- */
+.progress-wrapper {
+  margin-bottom: 48px;
+}
+
+.progress-label {
+  font-size: 0.8rem;
+  color: #999;
+  margin-bottom: 8px;
+  text-align: right;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #e8e8e8;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease, background 0.3s;
+}
+
+/* --- QUESTION SCREEN --- */
+#question-screen {
+  display: none;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+#question-screen.fading { opacity: 0; }
+
+.question-text {
+  font-size: 1.4rem;
+  line-height: 1.55;
+  font-weight: 500;
+  margin-bottom: 48px;
+  min-height: 80px;
+  letter-spacing: -0.01em;
+}
+
+.likert-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.likert-btn {
+  flex: 1;
+  padding: 16px 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  border: 2px solid #ddd;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.15s;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.likert-btn:hover {
+  border-color: #333;
+  color: #111;
+}
+
+.likert-btn.selected {
+  border-color: #111;
+  background: #111;
+  color: #fff;
+}
+
+.likert-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #bbb;
+  margin-bottom: 40px;
+  padding: 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-btn {
+  padding: 12px 28px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #111;
+  transition: all 0.15s;
+}
+
+.nav-btn:hover { border-color: #111; }
+.nav-btn:disabled { opacity: 0.2; cursor: default; }
+.nav-btn:disabled:hover { border-color: #ddd; }
+
+.nav-btn.primary {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.nav-btn.primary:hover { background: #333; }
+.nav-btn.primary:disabled { opacity: 0.3; }
+.nav-btn.primary:disabled:hover { background: #111; }
+
+/* --- RESULTS SCREEN --- */
+#results-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 60px;
+  padding-bottom: 80px;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+#results-screen.visible { opacity: 1; }
+
+.archetype-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  text-align: center;
+  letter-spacing: -0.03em;
+}
+
+.archetype-tagline {
+  font-size: 1.05rem;
+  color: #666;
+  margin-bottom: 40px;
+  text-align: center;
+  max-width: 460px;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.chart-container {
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto 40px;
+}
+
+.dimension-breakdown {
+  width: 100%;
+  margin-bottom: 36px;
+}
+
+.dim-group {
+  margin-bottom: 20px;
+}
+
+.dimension-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dimension-name {
+  width: 90px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: right;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dimension-bar-bg {
+  flex: 1;
+  height: 24px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dimension-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease;
+  width: 0;
+}
+
+.dimension-score {
+  width: 44px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.dimension-desc {
+  font-size: 0.82rem;
+  color: #888;
+  margin-top: 4px;
+  padding-left: 102px;
+  line-height: 1.4;
+}
+
+.share-box {
+  width: 100%;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 28px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.share-box:hover { border-color: #bbb; }
+
+.share-box .share-label {
+  font-size: 0.75rem;
+  color: #999;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.share-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+.copied-msg {
+  font-size: 0.8rem;
+  color: #10B981;
+  font-weight: 600;
+  display: none;
+  margin-top: 8px;
+}
+
+.btn-restart {
+  padding: 14px 40px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: 2px solid #111;
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.btn-restart:hover {
+  background: #fff;
+  color: #111;
+}
+
+/* Fork-specific name colors */
+.dim-name-creator  { color: #3B82F6; }
+.dim-name-longevity { color: #10B981; }
+.dim-name-bci      { color: #8B5CF6; }
+.dim-name-space    { color: #F59E0B; }
+.dim-name-upload   { color: #EF4444; }
+
+/* Dimension bar colors */
+.dim-creator  { background: #3B82F6; }
+.dim-longevity { background: #10B981; }
+.dim-bci      { background: #8B5CF6; }
+.dim-space    { background: #F59E0B; }
+.dim-upload   { background: #EF4444; }
+
+/* Attribution */
+.attribution {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-top: 32px;
+  text-align: center;
+}
+
+.attribution a { color: #888; }
+
+@media (max-width: 480px) {
+  #start-screen h1 { font-size: 1.8rem; }
+  .question-text { font-size: 1.2rem; }
+  .likert-btn { padding: 18px 2px; font-size: 0.75rem; }
+  .archetype-title { font-size: 1.6rem; }
+  .dimension-name { width: 70px; font-size: 0.75rem; }
+  .dimension-desc { padding-left: 82px; }
+}
+</style>
+</head>
+<body class="dark">
+<div class="container">
+
+  <!-- START SCREEN -->
+  <div id="start-screen">
+    <h1>Which Future<br>Will You Inhabit?</h1>
+    <p class="subtitle">Five forks are about to split humanity. This quiz maps where you'll land — not either/or, but across all five dimensions.</p>
+    <div class="fork-preview">
+      <span class="fork-pill creator">Creator</span>
+      <span class="fork-pill longevity">Longevity</span>
+      <span class="fork-pill bci">BCI</span>
+      <span class="fork-pill space">Space</span>
+      <span class="fork-pill upload">Upload</span>
+    </div>
+    <p class="credit">20 questions. ~3 minutes. Based on Peter Diamandis's Five Forks framework.</p>
+    <button class="btn-start" onclick="startQuiz()">Begin</button>
+  </div>
+
+  <!-- QUESTION SCREEN -->
+  <div id="question-screen">
+    <div class="progress-wrapper">
+      <div class="progress-label" id="progress-label">1 / 20</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div class="question-text" id="question-text"></div>
+    <div class="likert-row" id="likert-row">
+      <button class="likert-btn" data-value="1" onclick="selectAnswer(1)">Strongly<br>Disagree</button>
+      <button class="likert-btn" data-value="2" onclick="selectAnswer(2)">Disagree</button>
+      <button class="likert-btn" data-value="3" onclick="selectAnswer(3)">Neutral</button>
+      <button class="likert-btn" data-value="4" onclick="selectAnswer(4)">Agree</button>
+      <button class="likert-btn" data-value="5" onclick="selectAnswer(5)">Strongly<br>Agree</button>
+    </div>
+    <div class="likert-labels">
+      <span></span>
+      <span></span>
+    </div>
+    <div class="nav-row">
+      <button class="nav-btn" id="prev-btn" onclick="prevQuestion()" disabled>&larr; Back</button>
+      <button class="nav-btn primary" id="next-btn" onclick="nextQuestion()" disabled>Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen">
+    <div class="archetype-title" id="archetype-title"></div>
+    <div class="archetype-tagline" id="archetype-tagline"></div>
+    <div class="chart-container">
+      <canvas id="radar-chart"></canvas>
+    </div>
+    <div class="dimension-breakdown" id="dimension-breakdown"></div>
+    <div class="share-box" onclick="copyShare()">
+      <div class="share-label">Click to copy</div>
+      <div class="share-text" id="share-text"></div>
+      <div class="copied-msg" id="copied-msg">Copied to clipboard</div>
+    </div>
+    <button class="btn-restart" onclick="restartQuiz()">Start Over</button>
+    <div class="attribution">Inspired by <a href="https://x.com/PeterDiamandis" target="_blank">@PeterDiamandis</a></div>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  { id:1,  text:"When I discover a new tool, my first instinct is to build something with it.", weights:{CREATOR:1.0}, reverse:false },
+  { id:2,  text:"I\u2019d rather have a perfect recommendation algorithm than choose what to watch myself.", weights:{CREATOR:1.0}, reverse:true },
+  { id:3,  text:"I\u2019ve started more projects in the last year than I\u2019ve finished.", weights:{CREATOR:1.0, SPACE:0.3}, reverse:false },
+  { id:4,  text:"The best weekends are the ones where I don\u2019t have to think about anything.", weights:{CREATOR:1.0}, reverse:true },
+  { id:5,  text:"If I could take a pill that stopped aging with no side effects, I\u2019d take it today.", weights:{LONGEVITY:1.0}, reverse:false },
+  { id:6,  text:"There\u2019s something important about mortality \u2014 it gives life meaning.", weights:{LONGEVITY:1.0}, reverse:true },
+  { id:7,  text:"I actively track my health metrics \u2014 sleep, bloodwork, exercise.", weights:{LONGEVITY:1.0}, reverse:false },
+  { id:8,  text:"I\u2019d rather live an extraordinary 80 years than an ordinary 200.", weights:{LONGEVITY:1.0, CREATOR:0.3}, reverse:true },
+  { id:9,  text:"I\u2019d love to learn Mandarin instantly by downloading it to my brain.", weights:{BCI:1.0}, reverse:false },
+  { id:10, text:"I\u2019m uncomfortable with the idea of technology inside my body.", weights:{BCI:1.0, LONGEVITY:0.3}, reverse:true },
+  { id:11, text:"My phone is already basically an extension of my mind.", weights:{BCI:1.0}, reverse:false },
+  { id:12, text:"Some human limitations are features, not bugs.", weights:{BCI:1.0, LONGEVITY:0.3}, reverse:true },
+  { id:13, text:"I\u2019d sign up for a one-way Mars colony even if conditions were harsh.", weights:{SPACE:1.0}, reverse:false },
+  { id:14, text:"Home is the most important place in the world to me.", weights:{SPACE:1.0}, reverse:true },
+  { id:15, text:"I\u2019ve moved to a new city or country at least once for the adventure of it.", weights:{SPACE:1.0, CREATOR:0.3}, reverse:false },
+  { id:16, text:"I feel most alive in environments I\u2019ve never been to before.", weights:{SPACE:1.0, BCI:0.3}, reverse:false },
+  { id:17, text:"If a perfect digital copy of me continued after my body died, that would be me.", weights:{UPLOAD:1.0}, reverse:false },
+  { id:18, text:"Consciousness requires a biological body.", weights:{UPLOAD:1.0}, reverse:true },
+  { id:19, text:"I\u2019d be comfortable existing as pure thought, with no physical sensations.", weights:{UPLOAD:1.0}, reverse:false },
+  { id:20, text:"The best things in life are physical \u2014 food, touch, nature.", weights:{UPLOAD:1.0, SPACE:0.3}, reverse:true }
+];
+
+const DIMENSIONS = ["CREATOR","LONGEVITY","BCI","SPACE","UPLOAD"];
+const DIM_LABELS = { CREATOR:"Creator", LONGEVITY:"Longevity", BCI:"BCI", SPACE:"Space", UPLOAD:"Upload" };
+const DIM_COLORS = { CREATOR:"#3B82F6", LONGEVITY:"#10B981", BCI:"#8B5CF6", SPACE:"#F59E0B", UPLOAD:"#EF4444" };
+
+// Progress bar color based on which fork category the current question belongs to
+function getProgressColor(qIndex) {
+  const q = QUESTIONS[qIndex];
+  const primary = Object.entries(q.weights).sort((a,b) => b[1] - a[1])[0][0];
+  return DIM_COLORS[primary];
+}
+
+const ARCHETYPES = [
+  { name:"The Accelerationist", tagline:"You\u2019re taking every fork. All of them. Simultaneously.", test:s => DIMENSIONS.every(d => s[d] > 70) },
+  { name:"The Grounded Human", tagline:"You\u2019re staying put, and that\u2019s a choice too. Maybe the bravest one.", test:s => DIMENSIONS.every(d => s[d] < 40) },
+  { name:"The Transcender", tagline:"Mind over matter \u2014 literally. You want to upgrade the hardware and maybe ditch it entirely.", test:s => s.UPLOAD > 65 && s.BCI > 65 && s.CREATOR <= 65 && s.SPACE <= 65 },
+  { name:"The Augmented Builder", tagline:"You want better tools fused into your brain so you can build better things.", test:s => s.CREATOR > 65 && s.BCI > 65 && s.UPLOAD <= 60 },
+  { name:"The Eternal Explorer", tagline:"Live forever and see everything. Why choose?", test:s => s.LONGEVITY > 65 && s.SPACE > 65 },
+  { name:"The Frontier Builder", tagline:"You don\u2019t just want to go to new places \u2014 you want to build them.", test:s => s.CREATOR > 65 && s.SPACE > 65 },
+  { name:"The Digital Nomad of Consciousness", tagline:"Upload your mind and broadcast it from Mars. Why not?", test:s => s.UPLOAD > 65 && s.SPACE > 65 },
+  { name:"The Biohacker", tagline:"You\u2019re optimizing the machine you already have before upgrading it.", test:s => s.LONGEVITY > 65 && s.BCI > 55 && s.CREATOR <= 60 },
+  { name:"The Maker", tagline:"You build things. That\u2019s the fork that matters to you.", test:s => s.CREATOR > 65 && DIMENSIONS.filter(d => d !== "CREATOR" && s[d] > 60).length === 0 },
+  { name:"The Longevist", tagline:"More time. That\u2019s what you want. Everything else follows from that.", test:s => s.LONGEVITY > 65 && DIMENSIONS.filter(d => d !== "LONGEVITY" && s[d] > 60).length === 0 },
+  { name:"The Starbound", tagline:"Earth is the cradle, but you don\u2019t intend to stay in it.", test:s => s.SPACE > 65 && DIMENSIONS.filter(d => d !== "SPACE" && s[d] > 60).length === 0 },
+  { name:"The Posthumanist", tagline:"You\u2019re comfortable with the idea that the next version of humanity won\u2019t look like this one.", test:s => s.UPLOAD > 65 && s.BCI > 55 && s.LONGEVITY > 55 },
+  { name:"The Cautious Futurist", tagline:"You\u2019re interested in the future but want to keep a hand on the steering wheel.", test:s => { const v = DIMENSIONS.map(d=>s[d]); const avg = v.reduce((a,b)=>a+b,0)/v.length; return avg >= 40 && avg <= 60 && v.every(x => x >= 30 && x <= 70); }}
+];
+
+function getFallbackArchetype(scores) {
+  let maxDim="CREATOR", maxVal=0;
+  for (const d of DIMENSIONS) { if (scores[d] > maxVal) { maxVal = scores[d]; maxDim = d; } }
+  const fb = {
+    CREATOR:   { name:"The Maker", tagline:"You build things. That\u2019s the fork that matters to you." },
+    LONGEVITY: { name:"The Longevist", tagline:"More time. That\u2019s what you want. Everything else follows." },
+    BCI:       { name:"The Neural Pioneer", tagline:"The brain is just a computer that hasn\u2019t been properly interfaced yet." },
+    SPACE:     { name:"The Starbound", tagline:"Earth is the cradle, but you don\u2019t intend to stay in it." },
+    UPLOAD:    { name:"The Digital Dreamer", tagline:"What if you could exist without a body? You\u2019ve thought about it." }
+  };
+  return fb[maxDim];
+}
+
+let currentQuestion = 0;
+let answers = new Array(20).fill(null);
+let radarChart = null;
+
+function startQuiz() {
+  document.getElementById("start-screen").style.display = "none";
+  document.getElementById("question-screen").style.display = "flex";
+  document.body.classList.remove("dark");
+  document.body.classList.add("light");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQuestion];
+  document.getElementById("question-text").textContent = q.text;
+  document.getElementById("progress-label").textContent = (currentQuestion+1) + " / 20";
+  document.getElementById("progress-fill").style.width = ((currentQuestion+1)/20*100) + "%";
+  document.getElementById("progress-fill").style.background = getProgressColor(currentQuestion);
+
+  const btns = document.querySelectorAll(".likert-btn");
+  btns.forEach(btn => {
+    btn.classList.remove("selected");
+    if (answers[currentQuestion] !== null && parseInt(btn.dataset.value) === answers[currentQuestion]) {
+      btn.classList.add("selected");
+    }
+  });
+
+  document.getElementById("prev-btn").disabled = currentQuestion === 0;
+  const nextBtn = document.getElementById("next-btn");
+  nextBtn.textContent = currentQuestion === 19 ? "See Results" : "Next \u2192";
+  nextBtn.disabled = answers[currentQuestion] === null;
+}
+
+function selectAnswer(value) {
+  answers[currentQuestion] = value;
+  const btns = document.querySelectorAll(".likert-btn");
+  btns.forEach(btn => {
+    btn.classList.remove("selected");
+    if (parseInt(btn.dataset.value) === value) btn.classList.add("selected");
+  });
+  document.getElementById("next-btn").disabled = false;
+}
+
+function nextQuestion() {
+  if (answers[currentQuestion] === null) return;
+  if (currentQuestion < 19) {
+    const screen = document.getElementById("question-screen");
+    screen.classList.add("fading");
+    setTimeout(() => {
+      currentQuestion++;
+      renderQuestion();
+      screen.classList.remove("fading");
+    }, 200);
+  } else {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQuestion > 0) {
+    const screen = document.getElementById("question-screen");
+    screen.classList.add("fading");
+    setTimeout(() => {
+      currentQuestion--;
+      renderQuestion();
+      screen.classList.remove("fading");
+    }, 200);
+  }
+}
+
+function computeScores() {
+  const totals = {}, weightSums = {};
+  DIMENSIONS.forEach(d => { totals[d] = 0; weightSums[d] = 0; });
+  QUESTIONS.forEach((q, i) => {
+    const raw = answers[i];
+    for (const dim in q.weights) {
+      const w = q.weights[dim];
+      const normalized = q.reverse ? (5-raw)/4*100 : (raw-1)/4*100;
+      totals[dim] += normalized * w;
+      weightSums[dim] += w;
+    }
+  });
+  const scores = {};
+  DIMENSIONS.forEach(d => { scores[d] = weightSums[d] > 0 ? Math.round(totals[d]/weightSums[d]) : 0; });
+  return scores;
+}
+
+function showResults() {
+  document.getElementById("question-screen").style.display = "none";
+  const rs = document.getElementById("results-screen");
+  rs.style.display = "flex";
+
+  const scores = computeScores();
+
+  let archetype = null;
+  for (const a of ARCHETYPES) { if (a.test(scores)) { archetype = a; break; } }
+  if (!archetype) archetype = getFallbackArchetype(scores);
+
+  document.getElementById("archetype-title").textContent = archetype.name;
+  document.getElementById("archetype-tagline").textContent = archetype.tagline;
+
+  renderRadar(scores);
+  renderBreakdown(scores);
+
+  const sorted = DIMENSIONS.slice().sort((a,b) => scores[b] - scores[a]);
+  document.getElementById("share-text").textContent =
+    `I\u2019m ${archetype.name} on the Diamandis Fork Quiz \u2014 ${DIM_LABELS[sorted[0]]} ${scores[sorted[0]]}%, ${DIM_LABELS[sorted[1]]} ${scores[sorted[1]]}%`;
+
+  // Fade in
+  requestAnimationFrame(() => { rs.classList.add("visible"); });
+
+  // Animate bars after a beat
+  setTimeout(() => {
+    document.querySelectorAll(".dimension-bar-fill").forEach(bar => {
+      bar.style.width = bar.dataset.target + "%";
+    });
+  }, 400);
+}
+
+function renderRadar(scores) {
+  const ctx = document.getElementById("radar-chart").getContext("2d");
+  if (radarChart) radarChart.destroy();
+  radarChart = new Chart(ctx, {
+    type: "radar",
+    data: {
+      labels: DIMENSIONS.map(d => DIM_LABELS[d]),
+      datasets: [{
+        data: DIMENSIONS.map(d => scores[d]),
+        backgroundColor: "rgba(17,17,17,0.06)",
+        borderColor: "#222",
+        borderWidth: 2,
+        pointBackgroundColor: DIMENSIONS.map(d => DIM_COLORS[d]),
+        pointBorderColor: DIMENSIONS.map(d => DIM_COLORS[d]),
+        pointRadius: 6,
+        pointHoverRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 800, easing: "easeOutQuart" },
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          beginAtZero: true, max: 100,
+          ticks: { stepSize: 25, font: { size: 10 }, color: "#ccc", backdropColor: "transparent" },
+          grid: { color: "#e8e8e8" },
+          angleLines: { color: "#e8e8e8" },
+          pointLabels: { font: { size: 13, weight: "700", family: "Inter" }, color: "#444" }
+        }
+      }
+    }
+  });
+}
+
+function getDimDescription(dim, score) {
+  const descs = {
+    CREATOR:   [["Builder energy. You make things.", 75], ["You create when inspired, consume when not.", 50], ["You prefer to enjoy what others build.", 25], ["Consumption is your comfort zone.", 0]],
+    LONGEVITY: [["Sign you up for the anti-aging trial.", 75], ["Open to it, but not obsessed.", 50], ["You see value in a natural lifespan.", 25], ["Mortality gives life its shape.", 0]],
+    BCI:       [["Plug it in. You\u2019re ready.", 75], ["Curious about augmentation, cautious about implants.", 50], ["You\u2019ll watch others try it first.", 25], ["The brain is fine as-is, thanks.", 0]],
+    SPACE:     [["Earth is the starting zone, not the endgame.", 75], ["You\u2019d visit Mars. Maybe not stay.", 50], ["Space is cool from down here.", 25], ["Home planet, thanks.", 0]],
+    UPLOAD:    [["Consciousness is substrate-independent to you.", 75], ["The idea intrigues you more than it scares you.", 50], ["You\u2019re not sure that copy would really be you.", 25], ["You are your body. Full stop.", 0]]
+  };
+  for (const [text, threshold] of descs[dim]) { if (score >= threshold) return text; }
+  return "";
+}
+
+function renderBreakdown(scores) {
+  const container = document.getElementById("dimension-breakdown");
+  const sorted = DIMENSIONS.slice().sort((a,b) => scores[b] - scores[a]);
+  let html = "";
+  for (const dim of sorted) {
+    const score = scores[dim];
+    const desc = getDimDescription(dim, score);
+    html += `
+      <div class="dim-group">
+        <div class="dimension-row">
+          <div class="dimension-name dim-name-${dim.toLowerCase()}">${DIM_LABELS[dim]}</div>
+          <div class="dimension-bar-bg">
+            <div class="dimension-bar-fill dim-${dim.toLowerCase()}" data-target="${score}" style="width: 0%"></div>
+          </div>
+          <div class="dimension-score">${score}%</div>
+        </div>
+        <div class="dimension-desc">${desc}</div>
+      </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function copyShare() {
+  const text = document.getElementById("share-text").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const msg = document.getElementById("copied-msg");
+    msg.style.display = "block";
+    setTimeout(() => { msg.style.display = "none"; }, 2000);
+  });
+}
+
+function restartQuiz() {
+  currentQuestion = 0;
+  answers = new Array(20).fill(null);
+  document.getElementById("results-screen").style.display = "none";
+  document.getElementById("results-screen").classList.remove("visible");
+  document.getElementById("start-screen").style.display = "flex";
+  document.body.classList.remove("light");
+  document.body.classList.add("dark");
+  if (radarChart) { radarChart.destroy(); radarChart = null; }
+}
+
+document.addEventListener("keydown", e => {
+  if (document.getElementById("question-screen").style.display === "flex") {
+    if (e.key >= "1" && e.key <= "5") selectAnswer(parseInt(e.key));
+    if (e.key === "Enter" && answers[currentQuestion] !== null) nextQuestion();
+    if (e.key === "ArrowLeft") prevQuestion();
+    if (e.key === "ArrowRight" && answers[currentQuestion] !== null) nextQuestion();
+  }
+  if (document.getElementById("start-screen").style.display !== "none" && e.key === "Enter") startQuiz();
+});
+</script>
+</body>
+</html>
