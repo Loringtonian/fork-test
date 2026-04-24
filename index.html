@@ -3,12 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Which Future Will You Inhabit?</title>
+<title>Fork Quiz</title>
+<meta name="description" content="Five forks are about to split humanity. Take the 30-question quiz to see where you'll land — Creator, Longevity, BCI, Space, or Upload. Inspired by Peter Diamandis's Five Forks framework.">
+
+<!-- Open Graph / Twitter card -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://loringtonian.github.io/fork-quiz/">
+<meta property="og:title" content="Which Future Will You Inhabit? — The Five Forks Quiz">
+<meta property="og:description" content="Five forks are about to split humanity. Find out where you'll land across Creator, Longevity, BCI, Space, and Upload.">
+<meta property="og:image" content="https://loringtonian.github.io/fork-quiz/assets/hero.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Which Future Will You Inhabit?">
+<meta name="twitter:description" content="Five forks. Thirty questions. Find out where you'll land.">
+<meta name="twitter:image" content="https://loringtonian.github.io/fork-quiz/assets/hero.png">
+
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* --- Theme variables --- */
+body.dark {
+  --bg: #0a0a0a;
+  --bg-fade: rgba(10,10,10,0);
+  --bg-fade-mid: rgba(10,10,10,0.85);
+  --text: #e8e8e8;
+  --text-strong: #ffffff;
+  --text-muted: #9a9a9a;
+  --text-faint: #6a6a6a;
+  --surface: #161616;
+  --surface-alt: #1e1e1e;
+  --border: #2a2a2a;
+  --border-strong: #e8e8e8;
+  --primary: #ffffff;
+  --primary-text: #0a0a0a;
+  --primary-hover: #e8e8e8;
+  --accent-success: #34d399;
+}
+
+body.light {
+  --bg: #fafafa;
+  --bg-fade: rgba(250,250,250,0);
+  --bg-fade-mid: rgba(250,250,250,0.85);
+  --text: #111111;
+  --text-strong: #000000;
+  --text-muted: #666666;
+  --text-faint: #999999;
+  --surface: #ffffff;
+  --surface-alt: #f0f0f0;
+  --border: #dddddd;
+  --border-strong: #111111;
+  --primary: #111111;
+  --primary-text: #ffffff;
+  --primary-hover: #333333;
+  --accent-success: #10b981;
+}
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -16,11 +67,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: background 0.6s ease, color 0.6s ease;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s ease, color 0.3s ease;
 }
-
-body.dark { background: #0a0a0a; color: #e8e8e8; }
-body.light { background: #fafafa; color: #111; }
 
 .container {
   max-width: 640px;
@@ -28,31 +78,111 @@ body.light { background: #fafafa; color: #111; }
   padding: 20px;
 }
 
-/* --- START SCREEN (dark) --- */
+/* --- Theme toggle (below Begin button on start screen) --- */
+.theme-toggle {
+  display: flex;
+  gap: 0;
+  width: fit-content;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+  margin: 24px auto 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.theme-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  padding: 6px 14px;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.theme-btn:hover { color: var(--text); }
+
+.theme-btn.active {
+  background: var(--primary);
+  color: var(--primary-text);
+}
+
+/* --- START SCREEN --- */
 #start-screen {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 100vh;
+  width: 100%;
   text-align: center;
+  padding-bottom: 40px;
+}
+
+#start-screen .hero-wrap {
+  width: 100%;
+  position: relative;
+  aspect-ratio: 16/9;
+  max-height: 52vh;
+  margin-bottom: 36px;
+  overflow: hidden;
+  opacity: 0;
+  animation: heroFadeIn 1.2s ease 0.1s forwards;
+}
+
+#start-screen .hero-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#start-screen .hero-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, var(--bg-fade) 55%, var(--bg-fade-mid) 90%, var(--bg) 100%);
+  pointer-events: none;
+  transition: background 0.3s ease;
+}
+
+@keyframes heroFadeIn {
+  from { opacity: 0; transform: scale(1.02); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #start-screen .hero-wrap { animation: none; opacity: 1; }
+  * { transition: none !important; animation: none !important; }
+}
+
+.start-content {
+  max-width: 480px;
+  padding: 0 20px;
+  width: 100%;
 }
 
 #start-screen h1 {
-  font-size: 2.4rem;
+  font-size: 2.6rem;
   font-weight: 800;
   margin-bottom: 16px;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+  color: var(--text-strong);
 }
-
-.dark #start-screen h1 { color: #fff; }
 
 #start-screen .subtitle {
   font-size: 1.05rem;
-  color: #888;
+  color: var(--text-muted);
   margin-bottom: 12px;
   max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
   line-height: 1.5;
 }
 
@@ -73,15 +203,22 @@ body.light { background: #fafafa; color: #111; }
   text-transform: uppercase;
 }
 
-.fork-pill.creator  { background: rgba(59,130,246,0.15); color: #60a5fa; }
-.fork-pill.longevity { background: rgba(16,185,129,0.15); color: #34d399; }
-.fork-pill.bci      { background: rgba(139,92,246,0.15); color: #a78bfa; }
-.fork-pill.space    { background: rgba(245,158,11,0.15); color: #fbbf24; }
-.fork-pill.upload   { background: rgba(239,68,68,0.15); color: #f87171; }
+.fork-pill.creator   { background: rgba(59,130,246,0.15);  color: #60a5fa; }
+.fork-pill.longevity { background: rgba(16,185,129,0.15);  color: #34d399; }
+.fork-pill.bci       { background: rgba(139,92,246,0.15);  color: #a78bfa; }
+.fork-pill.space     { background: rgba(245,158,11,0.15);  color: #fbbf24; }
+.fork-pill.upload    { background: rgba(239,68,68,0.15);   color: #f87171; }
+
+/* Slightly muted pills on light theme so they don't vibrate */
+body.light .fork-pill.creator   { background: rgba(59,130,246,0.12);  color: #2563eb; }
+body.light .fork-pill.longevity { background: rgba(16,185,129,0.12);  color: #059669; }
+body.light .fork-pill.bci       { background: rgba(139,92,246,0.12);  color: #7c3aed; }
+body.light .fork-pill.space     { background: rgba(245,158,11,0.12);  color: #d97706; }
+body.light .fork-pill.upload    { background: rgba(239,68,68,0.12);   color: #dc2626; }
 
 #start-screen .credit {
   font-size: 0.8rem;
-  color: #555;
+  color: var(--text-faint);
   margin-bottom: 32px;
 }
 
@@ -90,18 +227,18 @@ body.light { background: #fafafa; color: #111; }
   font-size: 1.1rem;
   font-weight: 600;
   font-family: inherit;
-  border: 2px solid #fff;
+  border: 2px solid var(--text);
   background: transparent;
-  color: #fff;
+  color: var(--text);
   cursor: pointer;
   border-radius: 6px;
-  transition: all 0.2s;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
   letter-spacing: 0.02em;
 }
 
 .btn-start:hover {
-  background: #fff;
-  color: #0a0a0a;
+  background: var(--text);
+  color: var(--bg);
 }
 
 /* --- PROGRESS BAR --- */
@@ -111,7 +248,7 @@ body.light { background: #fafafa; color: #111; }
 
 .progress-label {
   font-size: 0.8rem;
-  color: #999;
+  color: var(--text-faint);
   margin-bottom: 8px;
   text-align: right;
   font-weight: 500;
@@ -121,7 +258,7 @@ body.light { background: #fafafa; color: #111; }
 .progress-bar {
   width: 100%;
   height: 6px;
-  background: #e8e8e8;
+  background: var(--surface-alt);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -139,7 +276,7 @@ body.light { background: #fafafa; color: #111; }
   flex-direction: column;
   justify-content: center;
   opacity: 1;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.2s ease;
 }
 
 #question-screen.fading { opacity: 0; }
@@ -148,7 +285,7 @@ body.light { background: #fafafa; color: #111; }
   font-size: 1.4rem;
   line-height: 1.55;
   font-weight: 500;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
   min-height: 80px;
   letter-spacing: -0.01em;
 }
@@ -166,32 +303,33 @@ body.light { background: #fafafa; color: #111; }
   font-size: 0.85rem;
   font-weight: 500;
   font-family: inherit;
-  border: 2px solid #ddd;
-  background: #fff;
-  color: #555;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
   cursor: pointer;
   border-radius: 6px;
-  transition: all 0.15s;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.1s;
   text-align: center;
   line-height: 1.3;
 }
 
 .likert-btn:hover {
-  border-color: #333;
-  color: #111;
+  border-color: var(--border-strong);
+  color: var(--text);
 }
 
 .likert-btn.selected {
-  border-color: #111;
-  background: #111;
-  color: #fff;
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-text);
+  transform: scale(1.03);
 }
 
 .likert-labels {
   display: flex;
   justify-content: space-between;
   font-size: 0.7rem;
-  color: #bbb;
+  color: var(--text-faint);
   margin-bottom: 40px;
   padding: 0 4px;
   text-transform: uppercase;
@@ -201,7 +339,7 @@ body.light { background: #fafafa; color: #111; }
 
 .nav-row {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
 }
 
@@ -210,27 +348,17 @@ body.light { background: #fafafa; color: #111; }
   font-size: 0.9rem;
   font-weight: 500;
   font-family: inherit;
-  border: 1px solid #ddd;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--surface);
   cursor: pointer;
   border-radius: 6px;
-  color: #111;
-  transition: all 0.15s;
+  color: var(--text);
+  transition: border-color 0.15s, background 0.15s;
 }
 
-.nav-btn:hover { border-color: #111; }
+.nav-btn:hover { border-color: var(--border-strong); }
 .nav-btn:disabled { opacity: 0.2; cursor: default; }
-.nav-btn:disabled:hover { border-color: #ddd; }
-
-.nav-btn.primary {
-  background: #111;
-  color: #fff;
-  border-color: #111;
-}
-
-.nav-btn.primary:hover { background: #333; }
-.nav-btn.primary:disabled { opacity: 0.3; }
-.nav-btn.primary:disabled:hover { background: #111; }
+.nav-btn:disabled:hover { border-color: var(--border); }
 
 /* --- RESULTS SCREEN --- */
 #results-screen {
@@ -245,33 +373,47 @@ body.light { background: #fafafa; color: #111; }
 
 #results-screen.visible { opacity: 1; }
 
+.archetype-avatar {
+  width: 240px;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  opacity: 0;
+  transform: scale(0.96);
+  animation: avatarFadeIn 0.8s ease 0.15s forwards;
+}
+
+@keyframes avatarFadeIn {
+  to { opacity: 1; transform: scale(1); }
+}
+
 .archetype-title {
-  font-size: 2.2rem;
-  font-weight: 800;
-  margin-bottom: 8px;
+  font-family: 'SF Mono', ui-monospace, 'Menlo', 'Consolas', monospace;
+  font-size: 2.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin-bottom: 10px;
   text-align: center;
-  letter-spacing: -0.03em;
+  color: var(--text-strong);
 }
 
 .archetype-tagline {
-  font-size: 1.05rem;
-  color: #666;
+  font-size: 1.1rem;
+  color: var(--text-muted);
   margin-bottom: 40px;
   text-align: center;
-  max-width: 460px;
-  line-height: 1.5;
+  max-width: 520px;
+  line-height: 1.45;
   font-style: italic;
-}
-
-.chart-container {
-  width: 100%;
-  max-width: 380px;
-  margin: 0 auto 40px;
+  padding: 0 8px;
 }
 
 .dimension-breakdown {
   width: 100%;
-  margin-bottom: 36px;
+  max-width: 460px;
+  margin: 0 auto 36px;
 }
 
 .dim-group {
@@ -294,33 +436,55 @@ body.light { background: #fafafa; color: #111; }
   letter-spacing: 0.04em;
 }
 
+/* Divergent bar track: 0 is the center; bar fills outward toward +100 or -100. */
 .dimension-bar-bg {
   flex: 1;
-  height: 24px;
-  background: #f0f0f0;
+  height: 22px;
+  background: var(--surface-alt);
   border-radius: 4px;
   position: relative;
   overflow: hidden;
 }
 
-.dimension-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 1s ease;
-  width: 0;
+/* Vertical center marker */
+.dimension-bar-bg::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 50%;
+  width: 1px;
+  background: var(--border-strong);
+  opacity: 0.35;
+  transform: translateX(-0.5px);
+  z-index: 1;
 }
 
+.dimension-bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 2px;
+  transition: width 1s ease;
+  width: 0;
+  z-index: 0;
+}
+
+.dimension-bar-fill.pos { left: 50%; }
+.dimension-bar-fill.neg { right: 50%; }
+
 .dimension-score {
-  width: 44px;
+  width: 48px;
   font-size: 0.9rem;
   font-weight: 700;
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 .dimension-desc {
   font-size: 0.82rem;
-  color: #888;
+  color: var(--text-muted);
   margin-top: 4px;
   padding-left: 102px;
   line-height: 1.4;
@@ -328,8 +492,8 @@ body.light { background: #fafafa; color: #111; }
 
 .share-box {
   width: 100%;
-  background: #f5f5f5;
-  border: 1px solid #e0e0e0;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 28px;
@@ -337,11 +501,11 @@ body.light { background: #fafafa; color: #111; }
   transition: border-color 0.2s;
 }
 
-.share-box:hover { border-color: #bbb; }
+.share-box:hover { border-color: var(--border-strong); }
 
 .share-box .share-label {
   font-size: 0.75rem;
-  color: #999;
+  color: var(--text-faint);
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -349,14 +513,17 @@ body.light { background: #fafafa; color: #111; }
 }
 
 .share-text {
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: #333;
+  font-family: 'SF Mono', ui-monospace, 'Menlo', 'Consolas', monospace;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .copied-msg {
   font-size: 0.8rem;
-  color: #10B981;
+  color: var(--accent-success);
   font-weight: 600;
   display: none;
   margin-top: 8px;
@@ -367,58 +534,121 @@ body.light { background: #fafafa; color: #111; }
   font-size: 1rem;
   font-weight: 600;
   font-family: inherit;
-  border: 2px solid #111;
-  background: #111;
-  color: #fff;
+  border: 2px solid var(--primary);
+  background: var(--primary);
+  color: var(--primary-text);
   cursor: pointer;
   border-radius: 6px;
-  transition: all 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .btn-restart:hover {
-  background: #fff;
-  color: #111;
+  background: transparent;
+  color: var(--primary);
 }
 
-/* Fork-specific name colors */
-.dim-name-creator  { color: #3B82F6; }
+/* Fork-specific name colors (same for both themes; fork identities don't flip) */
+.dim-name-creator   { color: #3B82F6; }
 .dim-name-longevity { color: #10B981; }
-.dim-name-bci      { color: #8B5CF6; }
-.dim-name-space    { color: #F59E0B; }
-.dim-name-upload   { color: #EF4444; }
+.dim-name-bci       { color: #8B5CF6; }
+.dim-name-space     { color: #F59E0B; }
+.dim-name-upload    { color: #EF4444; }
 
 /* Dimension bar colors */
-.dim-creator  { background: #3B82F6; }
+.dim-creator   { background: #3B82F6; }
 .dim-longevity { background: #10B981; }
-.dim-bci      { background: #8B5CF6; }
-.dim-space    { background: #F59E0B; }
-.dim-upload   { background: #EF4444; }
+.dim-bci       { background: #8B5CF6; }
+.dim-space     { background: #F59E0B; }
+.dim-upload    { background: #EF4444; }
 
-/* Attribution */
 .attribution {
   font-size: 0.75rem;
-  color: #aaa;
+  color: var(--text-faint);
   margin-top: 32px;
   text-align: center;
 }
 
-.attribution a { color: #888; }
+.attribution a { color: var(--text-muted); }
 
+/* --- RESPONSIVE --- */
+/* Tablet */
+@media (max-width: 720px) {
+  #start-screen h1 { font-size: 2.1rem; }
+  #start-screen .hero-wrap { max-height: 42vh; }
+  .question-text { font-size: 1.3rem; margin-bottom: 32px; }
+}
+
+/* Mobile */
 @media (max-width: 480px) {
-  #start-screen h1 { font-size: 1.8rem; }
-  .question-text { font-size: 1.2rem; }
-  .likert-btn { padding: 18px 2px; font-size: 0.75rem; }
-  .archetype-title { font-size: 1.6rem; }
-  .dimension-name { width: 70px; font-size: 0.75rem; }
-  .dimension-desc { padding-left: 82px; }
+  .container { padding: 16px; }
+
+  /* Start screen */
+  #start-screen h1 { font-size: 1.75rem; }
+  #start-screen .subtitle { font-size: 0.95rem; }
+  #start-screen .hero-wrap { max-height: 36vh; margin-bottom: 22px; }
+  #start-screen .credit { margin-bottom: 24px; }
+  .fork-pill { font-size: 0.65rem; padding: 5px 9px; }
+  #start-screen .fork-preview { gap: 6px; margin: 18px 0 24px; }
+  .theme-toggle { font-size: 0.65rem; margin-top: 20px; }
+  .theme-btn { padding: 5px 10px; }
+
+  /* Question screen — content anchors near top, not vertically centered */
+  #question-screen {
+    justify-content: flex-start;
+    padding-top: 48px;
+    padding-bottom: 40px;
+    min-height: 100vh;
+  }
+  .progress-wrapper { margin-bottom: 32px; }
+  .question-text {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    margin-bottom: 28px;
+    min-height: 0;
+  }
+  .likert-btn {
+    padding: 18px 2px;
+    font-size: 0.72rem;
+    border-width: 1.5px;
+    min-height: 58px;
+  }
+  .likert-row { gap: 6px; }
+  .likert-labels { display: none; }
+  .nav-row { margin-top: 20px; }
+  .nav-btn { padding: 12px 22px; font-size: 0.85rem; }
+
+  /* Results screen */
+  #results-screen { padding-top: 40px; padding-bottom: 60px; }
+  .archetype-avatar { width: 180px; height: 180px; margin-bottom: 20px; border-radius: 10px; }
+  .archetype-title { font-size: 2rem; letter-spacing: 0.1em; }
+  .archetype-tagline { font-size: 0.95rem; margin-bottom: 32px; padding: 0 10px; }
+  .dimension-breakdown { max-width: none; margin-bottom: 28px; }
+  .dimension-name { width: 70px; font-size: 0.7rem; }
+  .dimension-desc { padding-left: 82px; font-size: 0.76rem; }
+  .dimension-score { width: 40px; font-size: 0.82rem; }
+  .dim-group { margin-bottom: 16px; }
+  .share-box { padding: 16px; margin-bottom: 22px; }
+  .share-text { font-size: 0.88rem; }
+}
+
+/* Very narrow (iPhone SE etc.) */
+@media (max-width: 360px) {
+  .likert-row { gap: 4px; }
+  .likert-btn { padding: 16px 1px; font-size: 0.66rem; min-height: 54px; }
+  .dimension-name { width: 62px; font-size: 0.65rem; }
+  .dimension-desc { padding-left: 74px; }
+  .share-text { font-size: 0.74rem; }
 }
 </style>
 </head>
 <body class="dark">
-<div class="container">
 
-  <!-- START SCREEN -->
-  <div id="start-screen">
+<!-- START SCREEN (full-bleed hero) -->
+<div id="start-screen">
+  <div class="hero-wrap">
+    <img src="assets/hero.png" alt="Five divergent paths of light receding into a dark horizon" fetchpriority="high" />
+  </div>
+  <div class="start-content">
     <h1>Which Future<br>Will You Inhabit?</h1>
     <p class="subtitle">Five forks are about to split humanity. This quiz maps where you'll land — not either/or, but across all five dimensions.</p>
     <div class="fork-preview">
@@ -428,14 +658,21 @@ body.light { background: #fafafa; color: #111; }
       <span class="fork-pill space">Space</span>
       <span class="fork-pill upload">Upload</span>
     </div>
-    <p class="credit">20 questions. ~3 minutes. Based on Peter Diamandis's Five Forks framework.</p>
+    <p class="credit">30 questions. ~4 minutes. Based on Peter Diamandis's Five Forks framework.</p>
     <button class="btn-start" onclick="startQuiz()">Begin</button>
+    <div class="theme-toggle" role="group" aria-label="Theme">
+      <button class="theme-btn" data-theme="dark" onclick="setTheme('dark')">Dark</button>
+      <button class="theme-btn" data-theme="light" onclick="setTheme('light')">Light</button>
+    </div>
   </div>
+</div>
+
+<div class="container">
 
   <!-- QUESTION SCREEN -->
   <div id="question-screen">
     <div class="progress-wrapper">
-      <div class="progress-label" id="progress-label">1 / 20</div>
+      <div class="progress-label" id="progress-label">1 / 30</div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
     </div>
     <div class="question-text" id="question-text"></div>
@@ -452,17 +689,14 @@ body.light { background: #fafafa; color: #111; }
     </div>
     <div class="nav-row">
       <button class="nav-btn" id="prev-btn" onclick="prevQuestion()" disabled>&larr; Back</button>
-      <button class="nav-btn primary" id="next-btn" onclick="nextQuestion()" disabled>Next &rarr;</button>
     </div>
   </div>
 
   <!-- RESULTS SCREEN -->
   <div id="results-screen">
+    <img id="archetype-avatar" class="archetype-avatar" alt="" onerror="this.style.display='none'">
     <div class="archetype-title" id="archetype-title"></div>
     <div class="archetype-tagline" id="archetype-tagline"></div>
-    <div class="chart-container">
-      <canvas id="radar-chart"></canvas>
-    </div>
     <div class="dimension-breakdown" id="dimension-breakdown"></div>
     <div class="share-box" onclick="copyShare()">
       <div class="share-label">Click to copy</div>
@@ -470,134 +704,161 @@ body.light { background: #fafafa; color: #111; }
       <div class="copied-msg" id="copied-msg">Copied to clipboard</div>
     </div>
     <button class="btn-restart" onclick="restartQuiz()">Start Over</button>
-    <div class="attribution">Inspired by <a href="https://x.com/PeterDiamandis" target="_blank">@PeterDiamandis</a></div>
+    <div class="attribution">Inspired by <a href="https://x.com/PeterDiamandis" target="_blank" rel="noopener">@PeterDiamandis</a></div>
   </div>
 
 </div>
 
 <script>
 const QUESTIONS = [
+  // --- CREATOR (1–6): are you a producer or consumer when AI can do everything? ---
   { id:1,  text:"When I discover a new tool, my first instinct is to build something with it.", weights:{CREATOR:1.0}, reverse:false },
-  { id:2,  text:"I\u2019d rather have a perfect recommendation algorithm than choose what to watch myself.", weights:{CREATOR:1.0}, reverse:true },
-  { id:3,  text:"I\u2019ve started more projects in the last year than I\u2019ve finished.", weights:{CREATOR:1.0, SPACE:0.3}, reverse:false },
-  { id:4,  text:"The best weekends are the ones where I don\u2019t have to think about anything.", weights:{CREATOR:1.0}, reverse:true },
-  { id:5,  text:"If I could take a pill that stopped aging with no side effects, I\u2019d take it today.", weights:{LONGEVITY:1.0}, reverse:false },
-  { id:6,  text:"There\u2019s something important about mortality \u2014 it gives life meaning.", weights:{LONGEVITY:1.0}, reverse:true },
-  { id:7,  text:"I actively track my health metrics \u2014 sleep, bloodwork, exercise.", weights:{LONGEVITY:1.0}, reverse:false },
-  { id:8,  text:"I\u2019d rather live an extraordinary 80 years than an ordinary 200.", weights:{LONGEVITY:1.0, CREATOR:0.3}, reverse:true },
-  { id:9,  text:"I\u2019d love to learn Mandarin instantly by downloading it to my brain.", weights:{BCI:1.0}, reverse:false },
-  { id:10, text:"I\u2019m uncomfortable with the idea of technology inside my body.", weights:{BCI:1.0, LONGEVITY:0.3}, reverse:true },
-  { id:11, text:"My phone is already basically an extension of my mind.", weights:{BCI:1.0}, reverse:false },
-  { id:12, text:"Some human limitations are features, not bugs.", weights:{BCI:1.0, LONGEVITY:0.3}, reverse:true },
-  { id:13, text:"I\u2019d sign up for a one-way Mars colony even if conditions were harsh.", weights:{SPACE:1.0}, reverse:false },
-  { id:14, text:"Home is the most important place in the world to me.", weights:{SPACE:1.0}, reverse:true },
-  { id:15, text:"I\u2019ve moved to a new city or country at least once for the adventure of it.", weights:{SPACE:1.0, CREATOR:0.3}, reverse:false },
-  { id:16, text:"I feel most alive in environments I\u2019ve never been to before.", weights:{SPACE:1.0, BCI:0.3}, reverse:false },
-  { id:17, text:"If a perfect digital copy of me continued after my body died, that would be me.", weights:{UPLOAD:1.0}, reverse:false },
-  { id:18, text:"Consciousness requires a biological body.", weights:{UPLOAD:1.0}, reverse:true },
-  { id:19, text:"I\u2019d be comfortable existing as pure thought, with no physical sensations.", weights:{UPLOAD:1.0}, reverse:false },
-  { id:20, text:"The best things in life are physical \u2014 food, touch, nature.", weights:{UPLOAD:1.0, SPACE:0.3}, reverse:true }
+  { id:2,  text:"I get more satisfaction from making something clumsy than from consuming something polished.", weights:{CREATOR:1.0}, reverse:false },
+  { id:3,  text:"I’d rather have AI do the creative work and hand me the finished thing.", weights:{CREATOR:1.0}, reverse:true },
+  { id:4,  text:"I’ve started more projects in the past year than I’ve finished — and I’d do it the same way again.", weights:{CREATOR:1.0}, reverse:false },
+  { id:5,  text:"The best weekends are the ones where I don’t have to think about anything.", weights:{CREATOR:1.0}, reverse:true },
+  { id:6,  text:"When I use AI, I want it to expand what I can do — not replace what I used to do.", weights:{CREATOR:1.0, BCI:0.3}, reverse:false },
+
+  // --- LONGEVITY (7–12): do you want radically more years than biology offers? ---
+  { id:7,  text:"If I could take a pill tomorrow that stopped aging with no side effects, I’d take it today.", weights:{LONGEVITY:1.0}, reverse:false },
+  { id:8,  text:"I’d enroll in a credible anti-aging clinical trial right now, even with unknown side effects.", weights:{LONGEVITY:1.0}, reverse:false },
+  { id:9,  text:"I’d rather live an extraordinary 80 years than an ordinary 200.", weights:{LONGEVITY:1.0}, reverse:true },
+  { id:10, text:"I actively track my health metrics — sleep, bloodwork, exercise.", weights:{LONGEVITY:1.0}, reverse:false },
+  { id:11, text:"Mortality is what gives life its meaning — engineering it away would cheapen everything.", weights:{LONGEVITY:1.0}, reverse:true },
+  { id:12, text:"If aging becomes solvable in my lifetime, I want to be in the first wave that benefits.", weights:{LONGEVITY:1.0}, reverse:false },
+
+  // --- BCI (13–18): would you put technology inside your body for cognition? ---
+  { id:13, text:"If Neuralink or a similar implant became safe and reversible, I’d want one.", weights:{BCI:1.0}, reverse:false },
+  { id:14, text:"I’d download a language, a skill, or a memory into my brain the first week it was available.", weights:{BCI:1.0}, reverse:false },
+  { id:15, text:"I’m uncomfortable with the idea of technology inside my body.", weights:{BCI:1.0}, reverse:true },
+  { id:16, text:"My phone is already basically an extension of my mind — a BCI is just the next step.", weights:{BCI:1.0}, reverse:false },
+  { id:17, text:"The friction of slow thought is where good ideas actually come from.", weights:{BCI:1.0}, reverse:true },
+  { id:18, text:"If I could interface directly with an AI’s reasoning instead of typing prompts, I’d take that deal tomorrow.", weights:{BCI:1.0, CREATOR:0.3}, reverse:false },
+
+  // --- SPACE (19–24): do you want to leave Earth? ---
+  { id:19, text:"I’d sign up for a one-way Mars colony even if conditions were harsh.", weights:{SPACE:1.0}, reverse:false },
+  { id:20, text:"If a credible company offered me a ticket to a permanent off-Earth settlement in my lifetime, I’d seriously consider going.", weights:{SPACE:1.0}, reverse:false },
+  { id:21, text:"Earth is the most interesting place in the universe — I don’t feel the pull outward.", weights:{SPACE:1.0}, reverse:true },
+  { id:22, text:"I’ve moved to a new city or country at least once just for the adventure of it.", weights:{SPACE:1.0}, reverse:false },
+  { id:23, text:"Home matters more to me than almost anything — I’d choose a simpler life that keeps me rooted.", weights:{SPACE:1.0}, reverse:true },
+  { id:24, text:"The idea of my descendants being born off-Earth excites me more than it unsettles me.", weights:{SPACE:1.0}, reverse:false },
+
+  // --- UPLOAD (25–30): is consciousness substrate-independent for you? ---
+  { id:25, text:"If a perfect digital copy of me continued after my body died, that would be me.", weights:{UPLOAD:1.0}, reverse:false },
+  { id:26, text:"I’d upload myself even if the transition meant my biological body had to end.", weights:{UPLOAD:1.0}, reverse:false },
+  { id:27, text:"Consciousness requires a biological body — a copy, no matter how perfect, isn’t me.", weights:{UPLOAD:1.0}, reverse:true },
+  { id:28, text:"I’d be comfortable existing as pure thought, with no physical sensations.", weights:{UPLOAD:1.0}, reverse:false },
+  { id:29, text:"The best things in life are physical — food, touch, nature, weather.", weights:{UPLOAD:1.0}, reverse:true },
+  { id:30, text:"I’d accept that my uploaded self might be a different person who remembers being me — and do it anyway.", weights:{UPLOAD:1.0}, reverse:false }
 ];
 
 const DIMENSIONS = ["CREATOR","LONGEVITY","BCI","SPACE","UPLOAD"];
 const DIM_LABELS = { CREATOR:"Creator", LONGEVITY:"Longevity", BCI:"BCI", SPACE:"Space", UPLOAD:"Upload" };
 const DIM_COLORS = { CREATOR:"#3B82F6", LONGEVITY:"#10B981", BCI:"#8B5CF6", SPACE:"#F59E0B", UPLOAD:"#EF4444" };
 
-// Progress bar color based on which fork category the current question belongs to
 function getProgressColor(qIndex) {
   const q = QUESTIONS[qIndex];
   const primary = Object.entries(q.weights).sort((a,b) => b[1] - a[1])[0][0];
   return DIM_COLORS[primary];
 }
 
-const ARCHETYPES = [
-  { name:"The Accelerationist", tagline:"You\u2019re taking every fork. All of them. Simultaneously.", test:s => DIMENSIONS.every(d => s[d] > 70) },
-  { name:"The Grounded Human", tagline:"You\u2019re staying put, and that\u2019s a choice too. Maybe the bravest one.", test:s => DIMENSIONS.every(d => s[d] < 40) },
-  { name:"The Transcender", tagline:"Mind over matter \u2014 literally. You want to upgrade the hardware and maybe ditch it entirely.", test:s => s.UPLOAD > 65 && s.BCI > 65 && s.CREATOR <= 65 && s.SPACE <= 65 },
-  { name:"The Augmented Builder", tagline:"You want better tools fused into your brain so you can build better things.", test:s => s.CREATOR > 65 && s.BCI > 65 && s.UPLOAD <= 60 },
-  { name:"The Eternal Explorer", tagline:"Live forever and see everything. Why choose?", test:s => s.LONGEVITY > 65 && s.SPACE > 65 },
-  { name:"The Frontier Builder", tagline:"You don\u2019t just want to go to new places \u2014 you want to build them.", test:s => s.CREATOR > 65 && s.SPACE > 65 },
-  { name:"The Digital Nomad of Consciousness", tagline:"Upload your mind and broadcast it from Mars. Why not?", test:s => s.UPLOAD > 65 && s.SPACE > 65 },
-  { name:"The Biohacker", tagline:"You\u2019re optimizing the machine you already have before upgrading it.", test:s => s.LONGEVITY > 65 && s.BCI > 55 && s.CREATOR <= 60 },
-  { name:"The Maker", tagline:"You build things. That\u2019s the fork that matters to you.", test:s => s.CREATOR > 65 && DIMENSIONS.filter(d => d !== "CREATOR" && s[d] > 60).length === 0 },
-  { name:"The Longevist", tagline:"More time. That\u2019s what you want. Everything else follows from that.", test:s => s.LONGEVITY > 65 && DIMENSIONS.filter(d => d !== "LONGEVITY" && s[d] > 60).length === 0 },
-  { name:"The Starbound", tagline:"Earth is the cradle, but you don\u2019t intend to stay in it.", test:s => s.SPACE > 65 && DIMENSIONS.filter(d => d !== "SPACE" && s[d] > 60).length === 0 },
-  { name:"The Posthumanist", tagline:"You\u2019re comfortable with the idea that the next version of humanity won\u2019t look like this one.", test:s => s.UPLOAD > 65 && s.BCI > 55 && s.LONGEVITY > 55 },
-  { name:"The Cautious Futurist", tagline:"You\u2019re interested in the future but want to keep a hand on the steering wheel.", test:s => { const v = DIMENSIONS.map(d=>s[d]); const avg = v.reduce((a,b)=>a+b,0)/v.length; return avg >= 40 && avg <= 60 && v.every(x => x >= 30 && x <= 70); }}
-];
+const FORK_POLES = {
+  CREATOR:   { pos: { letter: "B", label: "Builder" },     neg: { letter: "W", label: "Witness" } },
+  LONGEVITY: { pos: { letter: "L", label: "Long-lived" },  neg: { letter: "M", label: "Mortal" } },
+  BCI:       { pos: { letter: "A", label: "Augmented" },   neg: { letter: "O", label: "Organic" } },
+  SPACE:     { pos: { letter: "S", label: "Spacebound" },  neg: { letter: "T", label: "Terrestrial" } },
+  UPLOAD:    { pos: { letter: "D", label: "Digital" },     neg: { letter: "E", label: "Embodied" } }
+};
 
-function getFallbackArchetype(scores) {
-  let maxDim="CREATOR", maxVal=0;
-  for (const d of DIMENSIONS) { if (scores[d] > maxVal) { maxVal = scores[d]; maxDim = d; } }
-  const fb = {
-    CREATOR:   { name:"The Maker", tagline:"You build things. That\u2019s the fork that matters to you." },
-    LONGEVITY: { name:"The Longevist", tagline:"More time. That\u2019s what you want. Everything else follows." },
-    BCI:       { name:"The Neural Pioneer", tagline:"The brain is just a computer that hasn\u2019t been properly interfaced yet." },
-    SPACE:     { name:"The Starbound", tagline:"Earth is the cradle, but you don\u2019t intend to stay in it." },
-    UPLOAD:    { name:"The Digital Dreamer", tagline:"What if you could exist without a body? You\u2019ve thought about it." }
-  };
-  return fb[maxDim];
+// Reading order for the descriptive phrase: where you live, how long, how wired, substrate,
+// then the CREATOR noun anchors the end. Code order matches fork order (CLBSU).
+const CODE_ORDER = ["CREATOR", "LONGEVITY", "BCI", "SPACE", "UPLOAD"];
+const PHRASE_ADJECTIVE_ORDER = ["SPACE", "LONGEVITY", "BCI", "UPLOAD"];
+
+function getArchetype(scores) {
+  const pick = (dim) => (scores[dim] >= 0 ? FORK_POLES[dim].pos : FORK_POLES[dim].neg);
+  const code = CODE_ORDER.map(d => pick(d).letter).join("");
+  const adjectives = PHRASE_ADJECTIVE_ORDER.map(d => pick(d).label);
+  const noun = pick("CREATOR").label;
+  const name = `The ${adjectives.join(", ")} ${noun}`;
+  return { code, name };
 }
 
+const TOTAL_QUESTIONS = QUESTIONS.length;
+const ADVANCE_DELAY_MS = 280;
 let currentQuestion = 0;
-let answers = new Array(20).fill(null);
-let radarChart = null;
+let answers = new Array(TOTAL_QUESTIONS).fill(null);
+let advanceTimer = null;
 
+/* --- Theme --- */
+function setTheme(theme) {
+  document.body.classList.remove("dark", "light");
+  document.body.classList.add(theme);
+  document.querySelectorAll(".theme-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.theme === theme);
+  });
+  try { localStorage.setItem("fq-theme", theme); } catch (e) {}
+}
+
+function initTheme() {
+  let t = "dark";
+  try {
+    const stored = localStorage.getItem("fq-theme");
+    if (stored === "light" || stored === "dark") t = stored;
+  } catch (e) {}
+  setTheme(t);
+}
+
+/* --- Quiz flow --- */
 function startQuiz() {
   document.getElementById("start-screen").style.display = "none";
   document.getElementById("question-screen").style.display = "flex";
-  document.body.classList.remove("dark");
-  document.body.classList.add("light");
   renderQuestion();
 }
 
 function renderQuestion() {
   const q = QUESTIONS[currentQuestion];
   document.getElementById("question-text").textContent = q.text;
-  document.getElementById("progress-label").textContent = (currentQuestion+1) + " / 20";
-  document.getElementById("progress-fill").style.width = ((currentQuestion+1)/20*100) + "%";
+  document.getElementById("progress-label").textContent = (currentQuestion+1) + " / " + TOTAL_QUESTIONS;
+  document.getElementById("progress-fill").style.width = ((currentQuestion+1)/TOTAL_QUESTIONS*100) + "%";
   document.getElementById("progress-fill").style.background = getProgressColor(currentQuestion);
 
-  const btns = document.querySelectorAll(".likert-btn");
-  btns.forEach(btn => {
-    btn.classList.remove("selected");
-    if (answers[currentQuestion] !== null && parseInt(btn.dataset.value) === answers[currentQuestion]) {
-      btn.classList.add("selected");
-    }
+  document.querySelectorAll(".likert-btn").forEach(btn => {
+    btn.classList.toggle("selected",
+      answers[currentQuestion] !== null && parseInt(btn.dataset.value) === answers[currentQuestion]);
   });
 
   document.getElementById("prev-btn").disabled = currentQuestion === 0;
-  const nextBtn = document.getElementById("next-btn");
-  nextBtn.textContent = currentQuestion === 19 ? "See Results" : "Next \u2192";
-  nextBtn.disabled = answers[currentQuestion] === null;
 }
 
 function selectAnswer(value) {
+  if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
   answers[currentQuestion] = value;
-  const btns = document.querySelectorAll(".likert-btn");
-  btns.forEach(btn => {
-    btn.classList.remove("selected");
-    if (parseInt(btn.dataset.value) === value) btn.classList.add("selected");
+  document.querySelectorAll(".likert-btn").forEach(btn => {
+    btn.classList.toggle("selected", parseInt(btn.dataset.value) === value);
   });
-  document.getElementById("next-btn").disabled = false;
+  advanceTimer = setTimeout(() => {
+    advanceTimer = null;
+    advance();
+  }, ADVANCE_DELAY_MS);
 }
 
-function nextQuestion() {
-  if (answers[currentQuestion] === null) return;
-  if (currentQuestion < 19) {
+function advance() {
+  if (currentQuestion < TOTAL_QUESTIONS - 1) {
     const screen = document.getElementById("question-screen");
     screen.classList.add("fading");
     setTimeout(() => {
       currentQuestion++;
       renderQuestion();
       screen.classList.remove("fading");
-    }, 200);
+    }, 180);
   } else {
     showResults();
   }
 }
 
 function prevQuestion() {
+  if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
   if (currentQuestion > 0) {
     const screen = document.getElementById("question-screen");
     screen.classList.add("fading");
@@ -605,19 +866,22 @@ function prevQuestion() {
       currentQuestion--;
       renderQuestion();
       screen.classList.remove("fading");
-    }, 200);
+    }, 180);
   }
 }
 
 function computeScores() {
+  // Map Likert 1..5 to signed range -100..+100 (midpoint = 3 → 0).
+  // Reverse items invert the sign so the fork axis stays consistent.
   const totals = {}, weightSums = {};
   DIMENSIONS.forEach(d => { totals[d] = 0; weightSums[d] = 0; });
   QUESTIONS.forEach((q, i) => {
     const raw = answers[i];
+    const base = (raw - 3) * 50;                // -100, -50, 0, +50, +100
+    const signed = q.reverse ? -base : base;    // invert for reverse-scored items
     for (const dim in q.weights) {
       const w = q.weights[dim];
-      const normalized = q.reverse ? (5-raw)/4*100 : (raw-1)/4*100;
-      totals[dim] += normalized * w;
+      totals[dim] += signed * w;
       weightSums[dim] += w;
     }
   });
@@ -626,31 +890,39 @@ function computeScores() {
   return scores;
 }
 
+let lastScores = null;
+
 function showResults() {
   document.getElementById("question-screen").style.display = "none";
   const rs = document.getElementById("results-screen");
   rs.style.display = "flex";
 
   const scores = computeScores();
+  lastScores = scores;
 
-  let archetype = null;
-  for (const a of ARCHETYPES) { if (a.test(scores)) { archetype = a; break; } }
-  if (!archetype) archetype = getFallbackArchetype(scores);
+  const archetype = getArchetype(scores);
+  document.getElementById("archetype-title").textContent = archetype.code;
+  document.getElementById("archetype-tagline").textContent = archetype.name;
 
-  document.getElementById("archetype-title").textContent = archetype.name;
-  document.getElementById("archetype-tagline").textContent = archetype.tagline;
+  // Load archetype avatar. Filename derived from the descriptive phrase:
+  // "The Spacebound, Long-lived, Augmented, Digital Builder" → "Spacebound_Long-lived_Augmented_Digital_Builder.png"
+  const avatarFile = archetype.name.replace(/^The /, "").replace(/, /g, "_").replace(/ /g, "_") + ".png";
+  const avatarEl = document.getElementById("archetype-avatar");
+  avatarEl.style.display = "";
+  avatarEl.src = "assets/avatars/" + encodeURIComponent(avatarFile);
+  avatarEl.alt = archetype.name;
 
-  renderRadar(scores);
   renderBreakdown(scores);
 
-  const sorted = DIMENSIONS.slice().sort((a,b) => scores[b] - scores[a]);
+  // Build shareable multi-line text: code + descriptive phrase + all five dimensions.
+  const padLabel = (s) => s.padEnd(9, " ");
+  const fmt = (n) => (n > 0 ? "+" : "") + n;
+  const lines = DIMENSIONS.map(d => `${padLabel(DIM_LABELS[d].toUpperCase())} ${fmt(scores[d]).padStart(4, " ")}`);
   document.getElementById("share-text").textContent =
-    `I\u2019m ${archetype.name} on the Diamandis Fork Quiz \u2014 ${DIM_LABELS[sorted[0]]} ${scores[sorted[0]]}%, ${DIM_LABELS[sorted[1]]} ${scores[sorted[1]]}%`;
+    `${archetype.code} — ${archetype.name}\n\n${lines.join("\n")}\n\nhttps://loringtonian.github.io/fork-quiz/`;
 
-  // Fade in
   requestAnimationFrame(() => { rs.classList.add("visible"); });
 
-  // Animate bars after a beat
   setTimeout(() => {
     document.querySelectorAll(".dimension-bar-fill").forEach(bar => {
       bar.style.width = bar.dataset.target + "%";
@@ -658,48 +930,14 @@ function showResults() {
   }, 400);
 }
 
-function renderRadar(scores) {
-  const ctx = document.getElementById("radar-chart").getContext("2d");
-  if (radarChart) radarChart.destroy();
-  radarChart = new Chart(ctx, {
-    type: "radar",
-    data: {
-      labels: DIMENSIONS.map(d => DIM_LABELS[d]),
-      datasets: [{
-        data: DIMENSIONS.map(d => scores[d]),
-        backgroundColor: "rgba(17,17,17,0.06)",
-        borderColor: "#222",
-        borderWidth: 2,
-        pointBackgroundColor: DIMENSIONS.map(d => DIM_COLORS[d]),
-        pointBorderColor: DIMENSIONS.map(d => DIM_COLORS[d]),
-        pointRadius: 6,
-        pointHoverRadius: 8
-      }]
-    },
-    options: {
-      responsive: true,
-      animation: { duration: 800, easing: "easeOutQuart" },
-      plugins: { legend: { display: false } },
-      scales: {
-        r: {
-          beginAtZero: true, max: 100,
-          ticks: { stepSize: 25, font: { size: 10 }, color: "#ccc", backdropColor: "transparent" },
-          grid: { color: "#e8e8e8" },
-          angleLines: { color: "#e8e8e8" },
-          pointLabels: { font: { size: 13, weight: "700", family: "Inter" }, color: "#444" }
-        }
-      }
-    }
-  });
-}
-
 function getDimDescription(dim, score) {
+  // Thresholds are on the [-100, +100] signed scale.
   const descs = {
-    CREATOR:   [["Builder energy. You make things.", 75], ["You create when inspired, consume when not.", 50], ["You prefer to enjoy what others build.", 25], ["Consumption is your comfort zone.", 0]],
-    LONGEVITY: [["Sign you up for the anti-aging trial.", 75], ["Open to it, but not obsessed.", 50], ["You see value in a natural lifespan.", 25], ["Mortality gives life its shape.", 0]],
-    BCI:       [["Plug it in. You\u2019re ready.", 75], ["Curious about augmentation, cautious about implants.", 50], ["You\u2019ll watch others try it first.", 25], ["The brain is fine as-is, thanks.", 0]],
-    SPACE:     [["Earth is the starting zone, not the endgame.", 75], ["You\u2019d visit Mars. Maybe not stay.", 50], ["Space is cool from down here.", 25], ["Home planet, thanks.", 0]],
-    UPLOAD:    [["Consciousness is substrate-independent to you.", 75], ["The idea intrigues you more than it scares you.", 50], ["You\u2019re not sure that copy would really be you.", 25], ["You are your body. Full stop.", 0]]
+    CREATOR:   [["Builder energy. You make things.", 50], ["You create when inspired, consume when not.", 0], ["You prefer to enjoy what others build.", -50], ["Consumption is your comfort zone.", -101]],
+    LONGEVITY: [["Sign you up for the anti-aging trial.", 50], ["Open to it, but not obsessed.", 0], ["You see value in a natural lifespan.", -50], ["Mortality gives life its shape.", -101]],
+    BCI:       [["Plug it in. You’re ready.", 50], ["Curious about augmentation, cautious about implants.", 0], ["You’ll watch others try it first.", -50], ["The brain is fine as-is, thanks.", -101]],
+    SPACE:     [["Earth is the starting zone, not the endgame.", 50], ["You’d visit Mars. Maybe not stay.", 0], ["Space is cool from down here.", -50], ["Home planet, thanks.", -101]],
+    UPLOAD:    [["Consciousness is substrate-independent to you.", 50], ["The idea intrigues you more than it scares you.", 0], ["You’re not sure that copy would really be you.", -50], ["You are your body. Full stop.", -101]]
   };
   for (const [text, threshold] of descs[dim]) { if (score >= threshold) return text; }
   return "";
@@ -707,19 +945,25 @@ function getDimDescription(dim, score) {
 
 function renderBreakdown(scores) {
   const container = document.getElementById("dimension-breakdown");
-  const sorted = DIMENSIONS.slice().sort((a,b) => scores[b] - scores[a]);
+  // Sort by absolute magnitude so strongest leanings show first (regardless of sign)
+  const sorted = DIMENSIONS.slice().sort((a,b) => Math.abs(scores[b]) - Math.abs(scores[a]));
   let html = "";
   for (const dim of sorted) {
     const score = scores[dim];
     const desc = getDimDescription(dim, score);
+    const cls = dim.toLowerCase();
+    const signClass = score >= 0 ? "pos" : "neg";
+    const signLabel = score > 0 ? `+${score}` : `${score}`;
+    // Bar half-width in percent of track (each half = 50% of track). score/2 gives bar width.
+    const halfPct = Math.abs(score) / 2;
     html += `
       <div class="dim-group">
         <div class="dimension-row">
-          <div class="dimension-name dim-name-${dim.toLowerCase()}">${DIM_LABELS[dim]}</div>
+          <div class="dimension-name dim-name-${cls}">${DIM_LABELS[dim]}</div>
           <div class="dimension-bar-bg">
-            <div class="dimension-bar-fill dim-${dim.toLowerCase()}" data-target="${score}" style="width: 0%"></div>
+            <div class="dimension-bar-fill dim-${cls} ${signClass}" data-target="${halfPct}" style="width: 0%"></div>
           </div>
-          <div class="dimension-score">${score}%</div>
+          <div class="dimension-score">${signLabel}</div>
         </div>
         <div class="dimension-desc">${desc}</div>
       </div>`;
@@ -737,25 +981,26 @@ function copyShare() {
 }
 
 function restartQuiz() {
+  if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
   currentQuestion = 0;
-  answers = new Array(20).fill(null);
+  answers = new Array(TOTAL_QUESTIONS).fill(null);
   document.getElementById("results-screen").style.display = "none";
   document.getElementById("results-screen").classList.remove("visible");
   document.getElementById("start-screen").style.display = "flex";
-  document.body.classList.remove("light");
-  document.body.classList.add("dark");
-  if (radarChart) { radarChart.destroy(); radarChart = null; }
 }
 
 document.addEventListener("keydown", e => {
-  if (document.getElementById("question-screen").style.display === "flex") {
+  const startVisible = document.getElementById("start-screen").style.display !== "none";
+  const questionVisible = document.getElementById("question-screen").style.display === "flex";
+  if (questionVisible) {
     if (e.key >= "1" && e.key <= "5") selectAnswer(parseInt(e.key));
-    if (e.key === "Enter" && answers[currentQuestion] !== null) nextQuestion();
-    if (e.key === "ArrowLeft") prevQuestion();
-    if (e.key === "ArrowRight" && answers[currentQuestion] !== null) nextQuestion();
+    else if (e.key === "ArrowLeft" || e.key === "Backspace") prevQuestion();
+  } else if (startVisible && e.key === "Enter") {
+    startQuiz();
   }
-  if (document.getElementById("start-screen").style.display !== "none" && e.key === "Enter") startQuiz();
 });
+
+initTheme();
 </script>
 </body>
 </html>
