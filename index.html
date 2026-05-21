@@ -409,6 +409,7 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
   border-radius: 12px;
   margin-bottom: 24px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  cursor: zoom-in;
   opacity: 0;
   transform: scale(0.96);
   animation: avatarFadeIn 0.8s ease 0.15s forwards;
@@ -797,6 +798,7 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
   object-fit: cover;
   border-radius: 6px;
   display: block;
+  cursor: zoom-in;
 }
 
 .gallery-card .gc-code {
@@ -813,6 +815,31 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
   color: var(--text-muted);
   margin-top: 3px;
   line-height: 1.3;
+}
+
+/* --- AVATAR LIGHTBOX (click any avatar → the 768px variant, enlarged) --- */
+.avatar-lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;                 /* above the gallery overlay (z-index 50) */
+  background: rgba(0,0,0,0.92);
+  padding: 24px;
+  cursor: zoom-out;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-lightbox.open { display: flex; }
+
+.avatar-lightbox img {
+  max-width: min(768px, 92vw);
+  max-height: 92dvh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5);
 }
 
 /* --- RESPONSIVE --- */
@@ -946,7 +973,7 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
 
   <!-- RESULTS SCREEN -->
   <div id="results-screen">
-    <img id="archetype-avatar" class="archetype-avatar" alt="" onerror="this.style.display='none'">
+    <img id="archetype-avatar" class="archetype-avatar" alt="" onclick="enlargeAvatar(this)" onerror="this.style.display='none'">
     <div class="archetype-name" id="archetype-name"></div>
     <button class="archetype-code" id="archetype-code" type="button" onclick="openGallery()" aria-label="See all 32 archetypes"></button>
     <div class="dimension-breakdown" id="dimension-breakdown"></div>
@@ -982,6 +1009,11 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
     </div>
     <div class="gallery-grid" id="gallery-grid"></div>
   </div>
+</div>
+
+<!-- AVATAR LIGHTBOX — click any avatar to see the 768px variant enlarged -->
+<div id="avatar-lightbox" class="avatar-lightbox" onclick="closeLightbox()">
+  <img id="avatar-lightbox-img" alt="">
 </div>
 
 <script>
@@ -1410,7 +1442,7 @@ function buildGallery() {
   if (galleryBuilt) return;
   document.getElementById("gallery-grid").innerHTML = allArchetypes().map(a => `
     <div class="gallery-card" data-code="${a.code}">
-      <img loading="lazy" src="${avatarThumb(a.name)}" alt="${a.name}" onerror="this.style.visibility='hidden'">
+      <img loading="lazy" src="${avatarThumb(a.name)}" alt="${a.name}" onclick="enlargeAvatar(this)" onerror="this.style.visibility='hidden'">
       <div class="gc-code">${a.code}</div>
       <div class="gc-name">${a.name}</div>
     </div>`).join("");
@@ -1435,7 +1467,27 @@ function closeGallery() {
   document.getElementById("gallery-overlay").classList.remove("open");
 }
 
+/* --- Avatar lightbox: click any avatar → the 768px variant, enlarged --- */
+// Gallery thumbs are 320px (/thumb/); the results avatar is already 768px (/lg/).
+// Swapping /thumb/ → /lg/ upgrades a thumb and is a harmless no-op on the lg avatar.
+function enlargeAvatar(imgEl) {
+  const src = (imgEl.getAttribute("src") || "").replace("/avatars/thumb/", "/avatars/lg/");
+  if (!src) return;
+  const big = document.getElementById("avatar-lightbox-img");
+  big.src = src;
+  big.alt = imgEl.alt || "";
+  document.getElementById("avatar-lightbox").classList.add("open");
+}
+
+function closeLightbox() {
+  document.getElementById("avatar-lightbox").classList.remove("open");
+}
+
 document.addEventListener("keydown", e => {
+  if (document.getElementById("avatar-lightbox").classList.contains("open")) {
+    if (e.key === "Escape") closeLightbox();
+    return;
+  }
   if (document.getElementById("gallery-overlay").classList.contains("open")) {
     if (e.key === "Escape") closeGallery();
     return;
