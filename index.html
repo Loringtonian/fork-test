@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fork Quiz</title>
-<meta name="description" content="Five forks are about to split humanity. Take the 30-question quiz to see where you'll land — Creator, Longevity, BCI, Space, or Upload. Inspired by Peter Diamandis's Five Forks framework.">
+<title>Fork Test</title>
+<meta name="description" content="Five forks are about to split humanity. Take the 30-question test to see where you'll land — Creator, Longevity, BCI, Space, or Upload. Inspired by Peter Diamandis's Five Forks framework.">
 
 <!-- Open Graph / Twitter card -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://loringtonian.github.io/fork-quiz/">
-<meta property="og:title" content="Which Future Will You Inhabit? — The Five Forks Quiz">
+<meta property="og:url" content="https://loringtonian.github.io/fork-test/">
+<meta property="og:title" content="Which Future Will You Inhabit? — The Five Forks Test">
 <meta property="og:description" content="Five forks are about to split humanity. Find out where you'll land across Creator, Longevity, BCI, Space, and Upload.">
-<meta property="og:image" content="https://loringtonian.github.io/fork-quiz/assets/hero.png">
+<meta property="og:image" content="https://loringtonian.github.io/fork-test/assets/hero.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Which Future Will You Inhabit?">
 <meta name="twitter:description" content="Five forks. Thirty questions. Find out where you'll land.">
-<meta name="twitter:image" content="https://loringtonian.github.io/fork-quiz/assets/hero.png">
+<meta name="twitter:image" content="https://loringtonian.github.io/fork-test/assets/hero.png">
 
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,7 +75,10 @@ body {
 .container {
   max-width: 640px;
   width: 100%;
-  padding: 20px;
+  /* Horizontal padding only — vertical padding here added a phantom 40px of
+     scroll under the start screen even when the question/results screens
+     (the container's only children) are hidden. */
+  padding: 0 20px;
 }
 
 /* --- Theme toggle (below Begin button on start screen) --- */
@@ -118,7 +121,8 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   width: 100%;
   text-align: center;
   padding-bottom: 40px;
@@ -128,6 +132,11 @@ body {
   width: 100%;
   position: relative;
   aspect-ratio: 16/9;
+  /* Absorb whatever vertical space the fixed content below doesn't use, so the
+     start screen always fits in one viewport. min-height:0 lets it shrink past
+     its aspect-ratio height; the img's object-fit:cover crops gracefully. */
+  flex: 1 1 auto;
+  min-height: 0;
   max-height: 52vh;
   margin-bottom: 36px;
   overflow: hidden;
@@ -158,6 +167,9 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   #start-screen .hero-wrap { animation: none; opacity: 1; }
+  /* The avatar's base state is opacity:0 and it relies on avatarFadeIn to
+     appear. With animations disabled it would stay invisible — force it on. */
+  .archetype-avatar { animation: none; opacity: 1; transform: none; }
   * { transition: none !important; animation: none !important; }
 }
 
@@ -165,6 +177,7 @@ body {
   max-width: 480px;
   padding: 0 20px;
   width: 100%;
+  flex-shrink: 0;
 }
 
 #start-screen h1 {
@@ -375,7 +388,7 @@ body.light .fork-pill.upload    { background: rgba(239,68,68,0.12);   color: #dc
 
 /* Shared-result view: someone landed here via /r/CODE/. Show the archetype hero
    only — no breakdown, no copy boxes, no "Start Over". Instead, a prominent
-   "Take the Quiz" CTA so they convert. */
+   "Take the Test" CTA so they convert. */
 body.shared-view .dimension-breakdown,
 body.shared-view .share-box,
 body.shared-view .share-actions,
@@ -389,8 +402,9 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
 .btn-take-quiz { display: none; }
 
 .archetype-avatar {
-  width: 240px;
-  height: 240px;
+  width: 460px;
+  height: 460px;
+  max-width: 100%;
   object-fit: cover;
   border-radius: 12px;
   margin-bottom: 24px;
@@ -404,25 +418,43 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
   to { opacity: 1; transform: scale(1); }
 }
 
-.archetype-title {
-  font-family: 'SF Mono', ui-monospace, 'Menlo', 'Consolas', monospace;
-  font-size: 2.8rem;
+/* The archetype NAME is the headline; the code is a small secondary line below it. */
+.archetype-name {
+  font-size: 2.2rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  margin-bottom: 10px;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
   text-align: center;
+  max-width: 560px;
+  padding: 0 8px;
   color: var(--text-strong);
 }
 
-.archetype-tagline {
-  font-size: 1.1rem;
+.archetype-code {
+  font-family: 'SF Mono', ui-monospace, 'Menlo', 'Consolas', monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   color: var(--text-muted);
-  margin-bottom: 40px;
-  text-align: center;
-  max-width: 520px;
-  line-height: 1.45;
-  font-style: italic;
-  padding: 0 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-bottom: 36px;
+  transition: color 0.15s;
+}
+
+.archetype-code:hover { color: var(--text-strong); }
+
+.code-hint {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-left: 4px;
 }
 
 .dimension-breakdown {
@@ -432,24 +464,52 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
 }
 
 .dim-group {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
+/* Dimension name + score on one line above the pole-labelled bar. */
+.dim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 7px;
+}
+
+.dim-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dim-score {
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+/* Pole word on each end, divergent bar between. The pole you lean toward
+   (and whose letter is in your code) is emphasized via .leans. */
 .dimension-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
-.dimension-name {
-  width: 90px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-align: right;
+.pole-label {
+  width: 82px;
   flex-shrink: 0;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  color: var(--text-faint);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
 }
+
+.pole-label.pole-left  { text-align: right; }
+.pole-label.pole-right { text-align: left; }
+.pole-label.leans { color: var(--text-strong); font-weight: 700; }
 
 /* Divergent bar track: 0 is the center; bar fills outward toward +100 or -100. */
 .dimension-bar-bg {
@@ -488,20 +548,11 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
 .dimension-bar-fill.pos { left: 50%; }
 .dimension-bar-fill.neg { right: 50%; }
 
-.dimension-score {
-  width: 48px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  flex-shrink: 0;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
 .dimension-desc {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
-  margin-top: 4px;
-  padding-left: 102px;
+  margin-top: 8px;
+  text-align: center;
   line-height: 1.4;
 }
 
@@ -663,6 +714,107 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
 
 .attribution a { color: var(--text-muted); }
 
+/* --- ARCHETYPE GALLERY (overlay listing all 32) --- */
+.gallery-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0,0,0,0.82);
+  padding: 24px;
+}
+
+.gallery-overlay.open {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fixed-height column: the head stays put, only the grid scrolls. */
+.gallery-panel {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  max-width: 940px;
+  width: 100%;
+  max-height: calc(100dvh - 48px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.gallery-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.gallery-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.gallery-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+  width: 34px;
+  height: 34px;
+  font-size: 1rem;
+  transition: border-color 0.15s;
+}
+
+.gallery-close:hover { border-color: var(--border-strong); }
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.gallery-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.gallery-card.current {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+
+.gallery-card img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+.gallery-card .gc-code {
+  font-family: 'SF Mono', ui-monospace, 'Menlo', 'Consolas', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-strong);
+  margin-top: 8px;
+}
+
+.gallery-card .gc-name {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  line-height: 1.3;
+}
+
 /* --- RESPONSIVE --- */
 /* Tablet */
 @media (max-width: 720px) {
@@ -673,7 +825,7 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
 
 /* Mobile */
 @media (max-width: 480px) {
-  .container { padding: 16px; }
+  .container { padding: 0 16px; }
 
   /* Start screen */
   #start-screen h1 { font-size: 1.75rem; }
@@ -712,31 +864,31 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
 
   /* Results screen */
   #results-screen { padding-top: 40px; padding-bottom: 60px; }
-  /* Avatar dominates the mobile results screen — substantially bigger than the
-     old 180px so the archetype is the visual centerpiece, not a thumbnail. */
+  /* Avatar fills the column width so the archetype is the centerpiece. */
   .archetype-avatar {
-    width: min(340px, 78vw);
-    height: min(340px, 78vw);
-    margin-bottom: 22px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1/1;
+    margin-bottom: 20px;
     border-radius: 12px;
   }
-  .archetype-title { font-size: 2rem; letter-spacing: 0.1em; }
-  .archetype-tagline { font-size: 0.95rem; margin-bottom: 32px; padding: 0 10px; }
+  .archetype-name { font-size: 1.55rem; }
+  .archetype-code { margin-bottom: 28px; }
   .dimension-breakdown { max-width: none; margin-bottom: 28px; }
-  .dimension-name { width: 70px; font-size: 0.7rem; }
-  .dimension-desc { padding-left: 82px; font-size: 0.76rem; }
-  .dimension-score { width: 40px; font-size: 0.82rem; }
-  .dim-group { margin-bottom: 16px; }
+  .pole-label { width: 62px; font-size: 0.66rem; }
+  .dim-group { margin-bottom: 18px; }
   .share-box { padding: 16px; margin-bottom: 22px; }
   .share-text { font-size: 0.88rem; }
+  .gallery-overlay { padding: 12px; }
+  .gallery-panel { max-height: calc(100dvh - 24px); }
+  .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
 }
 
 /* Very narrow (iPhone SE etc.) */
 @media (max-width: 360px) {
   .likert-row { gap: 4px; }
   .likert-btn { padding: 16px 1px; font-size: 0.66rem; min-height: 54px; }
-  .dimension-name { width: 62px; font-size: 0.65rem; }
-  .dimension-desc { padding-left: 74px; }
+  .pole-label { width: 52px; font-size: 0.62rem; }
   .share-text { font-size: 0.74rem; }
 }
 </style>
@@ -750,7 +902,7 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
   </div>
   <div class="start-content">
     <h1>Which Future<br>Will You Inhabit?</h1>
-    <p class="subtitle">Five forks are about to split humanity. This quiz maps where you'll land — not either/or, but across all five dimensions.</p>
+    <p class="subtitle">Five forks are about to split humanity. This test maps where you'll land — not either/or, but across all five dimensions.</p>
     <div class="fork-preview">
       <span class="fork-pill creator">Creator</span>
       <span class="fork-pill longevity">Longevity</span>
@@ -795,8 +947,8 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
   <!-- RESULTS SCREEN -->
   <div id="results-screen">
     <img id="archetype-avatar" class="archetype-avatar" alt="" onerror="this.style.display='none'">
-    <div class="archetype-title" id="archetype-title"></div>
-    <div class="archetype-tagline" id="archetype-tagline"></div>
+    <div class="archetype-name" id="archetype-name"></div>
+    <button class="archetype-code" id="archetype-code" type="button" onclick="openGallery()" aria-label="See all 32 archetypes"></button>
     <div class="dimension-breakdown" id="dimension-breakdown"></div>
     <div class="share-box" onclick="copyShare()">
       <div class="share-label">Click to copy your result</div>
@@ -808,38 +960,51 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
         <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M18.244 2H21.5l-7.69 8.79L23 22h-7.094l-5.55-7.262L4 22H.744l8.244-9.428L1 2h7.27l5.014 6.625L18.244 2zm-1.244 18h1.84L7.07 4H5.16L17 20z"/></svg>
         Share on X
       </button>
-      <button class="share-btn" onclick="copyLink()" aria-label="Copy quiz link">
+      <button class="share-btn" onclick="copyLink()" aria-label="Copy test link">
         Copy Link
       </button>
       <div class="share-feedback" id="share-feedback" role="status" aria-live="polite"></div>
     </div>
-    <p class="shared-prompt">You're looking at one of <strong>32 archetypes</strong>. Take the quiz to find yours — five quick splits, ~4 minutes.</p>
+    <p class="shared-prompt">You're looking at one of <strong>32 archetypes</strong>. Take the test to find yours — five quick splits, ~4 minutes.</p>
     <button class="btn-restart" onclick="restartQuiz()">Start Over</button>
-    <button class="btn-take-quiz" onclick="leaveSharedView()">Take the Quiz</button>
+    <button class="btn-take-quiz" onclick="leaveSharedView()">Take the Test</button>
     <div class="attribution">Inspired by <a href="https://x.com/PeterDiamandis" target="_blank" rel="noopener">@PeterDiamandis</a></div>
   </div>
 
 </div>
 
+<!-- ARCHETYPE GALLERY — all 32, opened by clicking the result code -->
+<div id="gallery-overlay" class="gallery-overlay" onclick="if(event.target===this)closeGallery()">
+  <div class="gallery-panel">
+    <div class="gallery-head">
+      <span class="gallery-title">All 32 Archetypes</span>
+      <button class="gallery-close" onclick="closeGallery()" aria-label="Close gallery">&#10005;</button>
+    </div>
+    <div class="gallery-grid" id="gallery-grid"></div>
+  </div>
+</div>
+
 <script>
-const QUESTIONS = [
-  // --- CREATOR (1–6): are you a producer or consumer when AI can do everything? ---
+// QUESTIONS_SOURCE is grouped by fork for readability. Each run interleaves them
+// (see buildQuizOrder) so no two consecutive questions share a fork.
+const QUESTIONS_SOURCE = [
+  // --- CREATOR: are you a producer or consumer when AI can do everything? ---
   { id:1,  text:"When I discover a new tool, my first instinct is to build something with it.", weights:{CREATOR:1.0}, reverse:false },
   { id:2,  text:"I get more satisfaction from making something clumsy than from consuming something polished.", weights:{CREATOR:1.0}, reverse:false },
   { id:3,  text:"I’d rather have AI do the creative work and hand me the finished thing.", weights:{CREATOR:1.0}, reverse:true },
   { id:4,  text:"Most weeks I’m working on something that didn’t exist a month ago.", weights:{CREATOR:1.0}, reverse:false },
   { id:5,  text:"I get restless when I’ve been purely consuming — feeds, TV, podcasts — for more than an hour or two.", weights:{CREATOR:1.0}, reverse:false },
-  { id:6,  text:"Given a powerful AI agent, I’d rather use it to make something other people can use than to generate custom entertainment for myself.", weights:{CREATOR:1.0, BCI:0.3}, reverse:false },
+  { id:6,  text:"Even when AI can generate anything I’d want to watch, read, or play, I’d still spend most of my time making things rather than consuming them.", weights:{CREATOR:1.0}, reverse:false },
 
-  // --- LONGEVITY (7–12): do you want radically more years than biology offers? ---
+  // --- LONGEVITY: do you want radically more years than biology offers? ---
   { id:7,  text:"I’d accept a 1% chance of death from a treatment that, if it worked, added 50 healthy years.", weights:{LONGEVITY:1.0}, reverse:false },
   { id:8,  text:"I already make choices now because I expect healthspan extension to improve dramatically in my lifetime.", weights:{LONGEVITY:1.0}, reverse:false },
-  { id:9,  text:"I’d rather live an extraordinary 80 years than an ordinary 200.", weights:{LONGEVITY:1.0}, reverse:true },
+  { id:9,  text:"Living for several centuries sounds more exhausting than exciting.", weights:{LONGEVITY:1.0}, reverse:true },
   { id:10, text:"I think of aging as a disease that will eventually be cured — not just a phase of life.", weights:{LONGEVITY:1.0}, reverse:false },
   { id:11, text:"Mortality is what gives life its meaning — engineering it away would cheapen everything.", weights:{LONGEVITY:1.0}, reverse:true },
   { id:12, text:"If aging becomes solvable in my lifetime, I want to be in the first wave that benefits.", weights:{LONGEVITY:1.0}, reverse:false },
 
-  // --- BCI (13–18): would you put technology inside your body for cognition? ---
+  // --- BCI: would you put technology inside your body for cognition? ---
   { id:13, text:"If Neuralink or a similar implant became safe and reversible, I’d want one.", weights:{BCI:1.0}, reverse:false },
   { id:14, text:"If a non-invasive headset let me control a computer directly with my thoughts, I’d want to use it as a real input device.", weights:{BCI:1.0}, reverse:false },
   { id:15, text:"The brain is the one place I want to keep tech out of.", weights:{BCI:1.0}, reverse:true },
@@ -847,7 +1012,7 @@ const QUESTIONS = [
   { id:17, text:"I’d refuse a cognitive enhancement if it made my thoughts feel a little less like mine, even if it made me measurably smarter.", weights:{BCI:1.0}, reverse:true },
   { id:18, text:"If I could interface directly with an AI’s reasoning instead of typing prompts, I’d take that deal tomorrow.", weights:{BCI:1.0, CREATOR:0.3}, reverse:false },
 
-  // --- SPACE (19–24): do you want to leave Earth? ---
+  // --- SPACE: do you want to leave Earth? ---
   { id:19, text:"I’d sign up for a one-way Mars colony even if conditions were harsh.", weights:{SPACE:1.0}, reverse:false },
   { id:20, text:"A future where humanity spreads beyond Earth feels more exciting to me than one where we only perfect life here.", weights:{SPACE:1.0}, reverse:false },
   { id:21, text:"Earth is the most interesting place in the universe — I don’t feel the pull outward.", weights:{SPACE:1.0}, reverse:true },
@@ -855,11 +1020,11 @@ const QUESTIONS = [
   { id:23, text:"Offworld should mean probes, factories, and short visits — not a permanent human civilization.", weights:{SPACE:1.0}, reverse:true },
   { id:24, text:"The idea of my descendants being born off-Earth excites me more than it unsettles me.", weights:{SPACE:1.0}, reverse:false },
 
-  // --- UPLOAD (25–30): is consciousness substrate-independent for you? ---
+  // --- UPLOAD: is consciousness substrate-independent for you? ---
   { id:25, text:"If a perfect digital copy of me continued after my body died, that would be me.", weights:{UPLOAD:1.0}, reverse:false },
   { id:26, text:"I’d upload myself even if the transition meant my biological body had to end.", weights:{UPLOAD:1.0}, reverse:false },
   { id:27, text:"Consciousness requires a biological body — a copy, no matter how perfect, isn’t me.", weights:{UPLOAD:1.0}, reverse:true },
-  { id:28, text:"I’d be comfortable living primarily as software, even if embodiment became optional rather than default.", weights:{UPLOAD:1.0}, reverse:false },
+  { id:28, text:"A life lived entirely in a digital world would feel just as real to me as a physical one.", weights:{UPLOAD:1.0}, reverse:false },
   { id:29, text:"Even if a digital existence offered me 1000 subjective years of thought, I’d choose 40 more biological years with a body that can taste, touch, and tire.", weights:{UPLOAD:1.0}, reverse:true },
   { id:30, text:"Even if upload continuity was uncertain, I’d still want a digital successor that carried my memories and values.", weights:{UPLOAD:1.0}, reverse:false }
 ];
@@ -868,10 +1033,13 @@ const DIMENSIONS = ["CREATOR","LONGEVITY","BCI","SPACE","UPLOAD"];
 const DIM_LABELS = { CREATOR:"Creator", LONGEVITY:"Longevity", BCI:"BCI", SPACE:"Space", UPLOAD:"Upload" };
 const DIM_COLORS = { CREATOR:"#3B82F6", LONGEVITY:"#10B981", BCI:"#8B5CF6", SPACE:"#F59E0B", UPLOAD:"#EF4444" };
 
+// A question's primary fork = the dimension it weights most heavily.
+function primaryFork(q) {
+  return Object.entries(q.weights).sort((a,b) => b[1] - a[1])[0][0];
+}
+
 function getProgressColor(qIndex) {
-  const q = QUESTIONS[qIndex];
-  const primary = Object.entries(q.weights).sort((a,b) => b[1] - a[1])[0][0];
-  return DIM_COLORS[primary];
+  return DIM_COLORS[primaryFork(QUESTIONS[qIndex])];
 }
 
 const FORK_POLES = {
@@ -882,9 +1050,10 @@ const FORK_POLES = {
   UPLOAD:    { pos: { letter: "D", label: "Digital" },     neg: { letter: "E", label: "Embodied" } }
 };
 
-// Reading order for the descriptive phrase: where you live, how long, how wired, substrate,
-// then the CREATOR noun anchors the end. Code order matches fork order (CLBSU).
-const CODE_ORDER = ["CREATOR", "LONGEVITY", "BCI", "SPACE", "UPLOAD"];
+// Code order == the order the words appear in the archetype name, so each code
+// letter is the initial of the word directly above it
+// ("The Spacebound, Long-lived, Augmented, Digital Builder" → SLADB).
+const CODE_ORDER = ["SPACE", "LONGEVITY", "BCI", "UPLOAD", "CREATOR"];
 const PHRASE_ADJECTIVE_ORDER = ["SPACE", "LONGEVITY", "BCI", "UPLOAD"];
 
 function getArchetype(scores) {
@@ -896,11 +1065,48 @@ function getArchetype(scores) {
   return { code, name };
 }
 
-const TOTAL_QUESTIONS = QUESTIONS.length;
+// Avatar filename derived from the name:
+// "The Spacebound, Long-lived, Augmented, Digital Builder" → "Spacebound_Long-lived_Augmented_Digital_Builder.png"
+function avatarPath(name) {
+  const file = name.replace(/^The /, "").replace(/, /g, "_").replace(/ /g, "_") + ".png";
+  return "assets/avatars/" + encodeURIComponent(file);
+}
+
+const TOTAL_QUESTIONS = QUESTIONS_SOURCE.length;
 const ADVANCE_DELAY_MS = 280;
+let QUESTIONS = [];          // the shuffled order for the current run
 let currentQuestion = 0;
 let answers = new Array(TOTAL_QUESTIONS).fill(null);
 let advanceTimer = null;
+
+function shuffleInPlace(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Interleave the questions: shuffle within each fork, then emit round-robin across
+// the five forks in a randomized fork order. No two consecutive questions share a
+// fork, and the order (and the progress-bar color sequence) varies every run.
+function buildQuizOrder() {
+  const byFork = {};
+  for (const q of QUESTIONS_SOURCE) {
+    const f = primaryFork(q);
+    (byFork[f] || (byFork[f] = [])).push(q);
+  }
+  for (const f in byFork) shuffleInPlace(byFork[f]);
+  const forks = shuffleInPlace(Object.keys(byFork));
+  const out = [];
+  for (let round = 0, added = true; added; round++) {
+    added = false;
+    for (const f of forks) {
+      if (byFork[f][round]) { out.push(byFork[f][round]); added = true; }
+    }
+  }
+  return out;
+}
 
 /* --- Theme --- */
 function setTheme(theme) {
@@ -923,6 +1129,9 @@ function initTheme() {
 
 /* --- Quiz flow --- */
 function startQuiz() {
+  QUESTIONS = buildQuizOrder();
+  currentQuestion = 0;
+  answers = new Array(TOTAL_QUESTIONS).fill(null);
   document.getElementById("start-screen").style.display = "none";
   document.getElementById("question-screen").style.display = "flex";
   renderQuestion();
@@ -1003,7 +1212,7 @@ function computeScores() {
   return scores;
 }
 
-const QUIZ_URL = "https://loringtonian.github.io/fork-quiz/";
+const QUIZ_URL = "https://loringtonian.github.io/fork-test/";
 let lastScores = null;
 let lastArchetype = null;
 
@@ -1017,16 +1226,7 @@ function showResults() {
 
   const archetype = getArchetype(scores);
   lastArchetype = archetype;
-  document.getElementById("archetype-title").textContent = archetype.code;
-  document.getElementById("archetype-tagline").textContent = archetype.name;
-
-  // Load archetype avatar. Filename derived from the descriptive phrase:
-  // "The Spacebound, Long-lived, Augmented, Digital Builder" → "Spacebound_Long-lived_Augmented_Digital_Builder.png"
-  const avatarFile = archetype.name.replace(/^The /, "").replace(/, /g, "_").replace(/ /g, "_") + ".png";
-  const avatarEl = document.getElementById("archetype-avatar");
-  avatarEl.style.display = "";
-  avatarEl.src = "assets/avatars/" + encodeURIComponent(avatarFile);
-  avatarEl.alt = archetype.name;
+  showArchetype(archetype);
 
   renderBreakdown(scores);
 
@@ -1046,6 +1246,18 @@ function showResults() {
   }, 400);
 }
 
+// Render an archetype's avatar, big name, and small clickable code into the
+// results screen. Shared by showResults and showSharedResult.
+function showArchetype(archetype) {
+  document.getElementById("archetype-name").textContent = archetype.name;
+  document.getElementById("archetype-code").innerHTML =
+    `(${archetype.code}) <span class="code-hint">see all 32 →</span>`;
+  const avatarEl = document.getElementById("archetype-avatar");
+  avatarEl.style.display = "";
+  avatarEl.src = avatarPath(archetype.name);
+  avatarEl.alt = archetype.name;
+}
+
 function getDimDescription(dim, score) {
   // Thresholds are on the [-100, +100] signed scale.
   const descs = {
@@ -1061,10 +1273,9 @@ function getDimDescription(dim, score) {
 
 function renderBreakdown(scores) {
   const container = document.getElementById("dimension-breakdown");
-  // Sort by absolute magnitude so strongest leanings show first (regardless of sign)
-  const sorted = DIMENSIONS.slice().sort((a,b) => Math.abs(scores[b]) - Math.abs(scores[a]));
+  // Rendered in CODE_ORDER so reading the leaning pole down the rows spells the code.
   let html = "";
-  for (const dim of sorted) {
+  for (const dim of CODE_ORDER) {
     const score = scores[dim];
     const desc = getDimDescription(dim, score);
     const cls = dim.toLowerCase();
@@ -1072,14 +1283,21 @@ function renderBreakdown(scores) {
     const signLabel = score > 0 ? `+${score}` : `${score}`;
     // Bar half-width in percent of track (each half = 50% of track). score/2 gives bar width.
     const halfPct = Math.abs(score) / 2;
+    const pole = FORK_POLES[dim];
+    const leftLeans = score < 0 ? " leans" : "";
+    const rightLeans = score >= 0 ? " leans" : "";
     html += `
       <div class="dim-group">
+        <div class="dim-header">
+          <span class="dim-title dim-name-${cls}">${DIM_LABELS[dim]}</span>
+          <span class="dim-score">${signLabel}</span>
+        </div>
         <div class="dimension-row">
-          <div class="dimension-name dim-name-${cls}">${DIM_LABELS[dim]}</div>
+          <span class="pole-label pole-left${leftLeans}">${pole.neg.label}</span>
           <div class="dimension-bar-bg">
             <div class="dimension-bar-fill dim-${cls} ${signClass}" data-target="${halfPct}" style="width: 0%"></div>
           </div>
-          <div class="dimension-score">${signLabel}</div>
+          <span class="pole-label pole-right${rightLeans}">${pole.pos.label}</span>
         </div>
         <div class="dimension-desc">${desc}</div>
       </div>`;
@@ -1098,7 +1316,8 @@ function copyShare() {
 
 function shareToX() {
   if (!lastArchetype) return;
-  const text = `I'm ${lastArchetype.code} — ${lastArchetype.name}.\n\nFive forks are about to split humanity. Which ones will you take?`;
+  const name = lastArchetype.name.replace(/^The /, "");
+  const text = `I just took the Fork Test and I'm a ${name}.`;
   // Per-result URL so the X card pulls the archetype-specific avatar via OG meta.
   // The /r/<CODE>/ stub redirects humans back to ?r=<CODE> which renders the result.
   const shareUrl = `${QUIZ_URL}r/${lastArchetype.code}/`;
@@ -1108,13 +1327,12 @@ function shareToX() {
 
 function archetypeFromCode(code) {
   if (typeof code !== "string" || code.length !== 5) return null;
-  const dims = ["CREATOR", "LONGEVITY", "BCI", "SPACE", "UPLOAD"];
   const picked = {};
-  for (let i = 0; i < dims.length; i++) {
-    const fork = FORK_POLES[dims[i]];
+  for (let i = 0; i < CODE_ORDER.length; i++) {
+    const fork = FORK_POLES[CODE_ORDER[i]];
     const letter = code[i];
-    if (letter === fork.pos.letter) picked[dims[i]] = fork.pos;
-    else if (letter === fork.neg.letter) picked[dims[i]] = fork.neg;
+    if (letter === fork.pos.letter) picked[CODE_ORDER[i]] = fork.pos;
+    else if (letter === fork.neg.letter) picked[CODE_ORDER[i]] = fork.neg;
     else return null;
   }
   const adjectives = PHRASE_ADJECTIVE_ORDER.map(d => picked[d].label);
@@ -1125,17 +1343,12 @@ function archetypeFromCode(code) {
 function showSharedResult(code) {
   const archetype = archetypeFromCode(code);
   if (!archetype) return false;
+  lastArchetype = archetype;
   document.body.classList.add("shared-view");
   document.getElementById("start-screen").style.display = "none";
   const rs = document.getElementById("results-screen");
   rs.style.display = "flex";
-  document.getElementById("archetype-title").textContent = archetype.code;
-  document.getElementById("archetype-tagline").textContent = archetype.name;
-  const avatarFile = archetype.name.replace(/^The /, "").replace(/, /g, "_").replace(/ /g, "_") + ".png";
-  const avatarEl = document.getElementById("archetype-avatar");
-  avatarEl.style.display = "";
-  avatarEl.src = "assets/avatars/" + encodeURIComponent(avatarFile);
-  avatarEl.alt = archetype.name;
+  showArchetype(archetype);
   requestAnimationFrame(() => { rs.classList.add("visible"); });
   return true;
 }
@@ -1168,14 +1381,63 @@ function showShareFeedback(msg) {
 
 function restartQuiz() {
   if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
-  currentQuestion = 0;
-  answers = new Array(TOTAL_QUESTIONS).fill(null);
   document.getElementById("results-screen").style.display = "none";
   document.getElementById("results-screen").classList.remove("visible");
   document.getElementById("start-screen").style.display = "flex";
 }
 
+/* --- Archetype gallery (all 32) --- */
+// Enumerate every pole combination → {code, name} for all 32 archetypes.
+function allArchetypes() {
+  const out = [];
+  for (let m = 0; m < 32; m++) {
+    const picked = {};
+    CODE_ORDER.forEach((d, i) => {
+      picked[d] = ((m >> i) & 1) ? FORK_POLES[d].pos : FORK_POLES[d].neg;
+    });
+    const code = CODE_ORDER.map(d => picked[d].letter).join("");
+    const adjectives = PHRASE_ADJECTIVE_ORDER.map(d => picked[d].label);
+    const name = `The ${adjectives.join(", ")} ${picked.CREATOR.label}`;
+    out.push({ code, name });
+  }
+  return out;
+}
+
+let galleryBuilt = false;
+function buildGallery() {
+  if (galleryBuilt) return;
+  document.getElementById("gallery-grid").innerHTML = allArchetypes().map(a => `
+    <div class="gallery-card" data-code="${a.code}">
+      <img loading="lazy" src="${avatarPath(a.name)}" alt="${a.name}" onerror="this.style.visibility='hidden'">
+      <div class="gc-code">${a.code}</div>
+      <div class="gc-name">${a.name}</div>
+    </div>`).join("");
+  galleryBuilt = true;
+}
+
+function openGallery() {
+  buildGallery();
+  const current = lastArchetype ? lastArchetype.code : null;
+  const overlay = document.getElementById("gallery-overlay");
+  overlay.querySelectorAll(".gallery-card").forEach(c => {
+    c.classList.toggle("current", c.dataset.code === current);
+  });
+  overlay.classList.add("open");
+  if (current) {
+    const el = overlay.querySelector(`.gallery-card[data-code="${current}"]`);
+    if (el) el.scrollIntoView({ block: "center" });
+  }
+}
+
+function closeGallery() {
+  document.getElementById("gallery-overlay").classList.remove("open");
+}
+
 document.addEventListener("keydown", e => {
+  if (document.getElementById("gallery-overlay").classList.contains("open")) {
+    if (e.key === "Escape") closeGallery();
+    return;
+  }
   const startVisible = document.getElementById("start-screen").style.display !== "none";
   const questionVisible = document.getElementById("question-screen").style.display === "flex";
   if (questionVisible) {
