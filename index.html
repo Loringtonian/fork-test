@@ -373,6 +373,21 @@ body.light .fork-pill.upload    { background: rgba(239,68,68,0.12);   color: #dc
 
 #results-screen.visible { opacity: 1; }
 
+/* Shared-result view: someone landed here via /r/CODE/. Show the archetype hero
+   only — no breakdown, no copy boxes, no "Start Over". Instead, a prominent
+   "Take the Quiz" CTA so they convert. */
+body.shared-view .dimension-breakdown,
+body.shared-view .share-box,
+body.shared-view .share-actions,
+body.shared-view .btn-restart { display: none !important; }
+
+body.shared-view .shared-prompt { display: block; }
+.shared-prompt { display: none; text-align: center; max-width: 520px; margin: 0 auto 28px; color: var(--text-muted); font-size: 0.95rem; line-height: 1.55; }
+.shared-prompt strong { color: var(--text-strong); }
+
+body.shared-view .btn-take-quiz { display: inline-flex; }
+.btn-take-quiz { display: none; }
+
 .archetype-avatar {
   width: 240px;
   height: 240px;
@@ -529,6 +544,64 @@ body.light .fork-pill.upload    { background: rgba(239,68,68,0.12);   color: #dc
   margin-top: 8px;
 }
 
+.share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto 28px;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.share-btn:hover { border-color: var(--border-strong); }
+
+.share-btn-primary {
+  background: var(--primary);
+  color: var(--primary-text);
+  border-color: var(--primary);
+}
+
+.share-btn-primary:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.share-btn svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+.share-feedback {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--accent-success);
+  font-weight: 600;
+  min-height: 1.2em;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.share-feedback.visible { opacity: 1; }
+
 .btn-restart {
   padding: 14px 40px;
   font-size: 1rem;
@@ -543,6 +616,26 @@ body.light .fork-pill.upload    { background: rgba(239,68,68,0.12);   color: #dc
 }
 
 .btn-restart:hover {
+  background: transparent;
+  color: var(--primary);
+}
+
+.btn-take-quiz {
+  align-items: center;
+  gap: 8px;
+  padding: 14px 40px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: 2px solid var(--primary);
+  background: var(--primary);
+  color: var(--primary-text);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-take-quiz:hover {
   background: transparent;
   color: var(--primary);
 }
@@ -619,7 +712,14 @@ body.light .fork-pill.upload    { background: rgba(239,68,68,0.12);   color: #dc
 
   /* Results screen */
   #results-screen { padding-top: 40px; padding-bottom: 60px; }
-  .archetype-avatar { width: 180px; height: 180px; margin-bottom: 20px; border-radius: 10px; }
+  /* Avatar dominates the mobile results screen — substantially bigger than the
+     old 180px so the archetype is the visual centerpiece, not a thumbnail. */
+  .archetype-avatar {
+    width: min(340px, 78vw);
+    height: min(340px, 78vw);
+    margin-bottom: 22px;
+    border-radius: 12px;
+  }
   .archetype-title { font-size: 2rem; letter-spacing: 0.1em; }
   .archetype-tagline { font-size: 0.95rem; margin-bottom: 32px; padding: 0 10px; }
   .dimension-breakdown { max-width: none; margin-bottom: 28px; }
@@ -699,11 +799,23 @@ body.light .fork-pill.upload    { background: rgba(239,68,68,0.12);   color: #dc
     <div class="archetype-tagline" id="archetype-tagline"></div>
     <div class="dimension-breakdown" id="dimension-breakdown"></div>
     <div class="share-box" onclick="copyShare()">
-      <div class="share-label">Click to copy</div>
+      <div class="share-label">Click to copy your result</div>
       <div class="share-text" id="share-text"></div>
       <div class="copied-msg" id="copied-msg">Copied to clipboard</div>
     </div>
+    <div class="share-actions">
+      <button class="share-btn share-btn-primary" onclick="shareToX()" aria-label="Share your result on X">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M18.244 2H21.5l-7.69 8.79L23 22h-7.094l-5.55-7.262L4 22H.744l8.244-9.428L1 2h7.27l5.014 6.625L18.244 2zm-1.244 18h1.84L7.07 4H5.16L17 20z"/></svg>
+        Share on X
+      </button>
+      <button class="share-btn" onclick="copyLink()" aria-label="Copy quiz link">
+        Copy Link
+      </button>
+      <div class="share-feedback" id="share-feedback" role="status" aria-live="polite"></div>
+    </div>
+    <p class="shared-prompt">You're looking at one of <strong>32 archetypes</strong>. Take the quiz to find yours — five quick splits, ~4 minutes.</p>
     <button class="btn-restart" onclick="restartQuiz()">Start Over</button>
+    <button class="btn-take-quiz" onclick="leaveSharedView()">Take the Quiz</button>
     <div class="attribution">Inspired by <a href="https://x.com/PeterDiamandis" target="_blank" rel="noopener">@PeterDiamandis</a></div>
   </div>
 
@@ -715,41 +827,41 @@ const QUESTIONS = [
   { id:1,  text:"When I discover a new tool, my first instinct is to build something with it.", weights:{CREATOR:1.0}, reverse:false },
   { id:2,  text:"I get more satisfaction from making something clumsy than from consuming something polished.", weights:{CREATOR:1.0}, reverse:false },
   { id:3,  text:"I’d rather have AI do the creative work and hand me the finished thing.", weights:{CREATOR:1.0}, reverse:true },
-  { id:4,  text:"I’ve started more projects in the past year than I’ve finished — and I’d do it the same way again.", weights:{CREATOR:1.0}, reverse:false },
-  { id:5,  text:"The best weekends are the ones where I don’t have to think about anything.", weights:{CREATOR:1.0}, reverse:true },
-  { id:6,  text:"When I use AI, I want it to expand what I can do — not replace what I used to do.", weights:{CREATOR:1.0, BCI:0.3}, reverse:false },
+  { id:4,  text:"Most weeks I’m working on something that didn’t exist a month ago.", weights:{CREATOR:1.0}, reverse:false },
+  { id:5,  text:"I get restless when I’ve been purely consuming — feeds, TV, podcasts — for more than an hour or two.", weights:{CREATOR:1.0}, reverse:false },
+  { id:6,  text:"Given a powerful AI agent, I’d rather use it to make something other people can use than to generate custom entertainment for myself.", weights:{CREATOR:1.0, BCI:0.3}, reverse:false },
 
   // --- LONGEVITY (7–12): do you want radically more years than biology offers? ---
-  { id:7,  text:"If I could take a pill tomorrow that stopped aging with no side effects, I’d take it today.", weights:{LONGEVITY:1.0}, reverse:false },
-  { id:8,  text:"I’d enroll in a credible anti-aging clinical trial right now, even with unknown side effects.", weights:{LONGEVITY:1.0}, reverse:false },
+  { id:7,  text:"I’d accept a 1% chance of death from a treatment that, if it worked, added 50 healthy years.", weights:{LONGEVITY:1.0}, reverse:false },
+  { id:8,  text:"I already make choices now because I expect healthspan extension to improve dramatically in my lifetime.", weights:{LONGEVITY:1.0}, reverse:false },
   { id:9,  text:"I’d rather live an extraordinary 80 years than an ordinary 200.", weights:{LONGEVITY:1.0}, reverse:true },
-  { id:10, text:"I actively track my health metrics — sleep, bloodwork, exercise.", weights:{LONGEVITY:1.0}, reverse:false },
+  { id:10, text:"I think of aging as a disease that will eventually be cured — not just a phase of life.", weights:{LONGEVITY:1.0}, reverse:false },
   { id:11, text:"Mortality is what gives life its meaning — engineering it away would cheapen everything.", weights:{LONGEVITY:1.0}, reverse:true },
   { id:12, text:"If aging becomes solvable in my lifetime, I want to be in the first wave that benefits.", weights:{LONGEVITY:1.0}, reverse:false },
 
   // --- BCI (13–18): would you put technology inside your body for cognition? ---
   { id:13, text:"If Neuralink or a similar implant became safe and reversible, I’d want one.", weights:{BCI:1.0}, reverse:false },
-  { id:14, text:"I’d download a language, a skill, or a memory into my brain the first week it was available.", weights:{BCI:1.0}, reverse:false },
-  { id:15, text:"I’m uncomfortable with the idea of technology inside my body.", weights:{BCI:1.0}, reverse:true },
-  { id:16, text:"My phone is already basically an extension of my mind — a BCI is just the next step.", weights:{BCI:1.0}, reverse:false },
-  { id:17, text:"The friction of slow thought is where good ideas actually come from.", weights:{BCI:1.0}, reverse:true },
+  { id:14, text:"If a non-invasive headset let me control a computer directly with my thoughts, I’d want to use it as a real input device.", weights:{BCI:1.0}, reverse:false },
+  { id:15, text:"The brain is the one place I want to keep tech out of.", weights:{BCI:1.0}, reverse:true },
+  { id:16, text:"I’d take a permanent BCI implant if it gave me reliable, searchable access to everything I’ve ever read.", weights:{BCI:1.0}, reverse:false },
+  { id:17, text:"I’d refuse a cognitive enhancement if it made my thoughts feel a little less like mine, even if it made me measurably smarter.", weights:{BCI:1.0}, reverse:true },
   { id:18, text:"If I could interface directly with an AI’s reasoning instead of typing prompts, I’d take that deal tomorrow.", weights:{BCI:1.0, CREATOR:0.3}, reverse:false },
 
   // --- SPACE (19–24): do you want to leave Earth? ---
   { id:19, text:"I’d sign up for a one-way Mars colony even if conditions were harsh.", weights:{SPACE:1.0}, reverse:false },
-  { id:20, text:"If a credible company offered me a ticket to a permanent off-Earth settlement in my lifetime, I’d seriously consider going.", weights:{SPACE:1.0}, reverse:false },
+  { id:20, text:"A future where humanity spreads beyond Earth feels more exciting to me than one where we only perfect life here.", weights:{SPACE:1.0}, reverse:false },
   { id:21, text:"Earth is the most interesting place in the universe — I don’t feel the pull outward.", weights:{SPACE:1.0}, reverse:true },
-  { id:22, text:"I’ve moved to a new city or country at least once just for the adventure of it.", weights:{SPACE:1.0}, reverse:false },
-  { id:23, text:"Home matters more to me than almost anything — I’d choose a simpler life that keeps me rooted.", weights:{SPACE:1.0}, reverse:true },
+  { id:22, text:"I’d accept a less convenient life if it meant helping build the first permanent off-Earth settlement.", weights:{SPACE:1.0}, reverse:false },
+  { id:23, text:"Offworld should mean probes, factories, and short visits — not a permanent human civilization.", weights:{SPACE:1.0}, reverse:true },
   { id:24, text:"The idea of my descendants being born off-Earth excites me more than it unsettles me.", weights:{SPACE:1.0}, reverse:false },
 
   // --- UPLOAD (25–30): is consciousness substrate-independent for you? ---
   { id:25, text:"If a perfect digital copy of me continued after my body died, that would be me.", weights:{UPLOAD:1.0}, reverse:false },
   { id:26, text:"I’d upload myself even if the transition meant my biological body had to end.", weights:{UPLOAD:1.0}, reverse:false },
   { id:27, text:"Consciousness requires a biological body — a copy, no matter how perfect, isn’t me.", weights:{UPLOAD:1.0}, reverse:true },
-  { id:28, text:"I’d be comfortable existing as pure thought, with no physical sensations.", weights:{UPLOAD:1.0}, reverse:false },
-  { id:29, text:"The best things in life are physical — food, touch, nature, weather.", weights:{UPLOAD:1.0}, reverse:true },
-  { id:30, text:"I’d accept that my uploaded self might be a different person who remembers being me — and do it anyway.", weights:{UPLOAD:1.0}, reverse:false }
+  { id:28, text:"I’d be comfortable living primarily as software, even if embodiment became optional rather than default.", weights:{UPLOAD:1.0}, reverse:false },
+  { id:29, text:"Even if a digital existence offered me 1000 subjective years of thought, I’d choose 40 more biological years with a body that can taste, touch, and tire.", weights:{UPLOAD:1.0}, reverse:true },
+  { id:30, text:"Even if upload continuity was uncertain, I’d still want a digital successor that carried my memories and values.", weights:{UPLOAD:1.0}, reverse:false }
 ];
 
 const DIMENSIONS = ["CREATOR","LONGEVITY","BCI","SPACE","UPLOAD"];
@@ -823,9 +935,10 @@ function renderQuestion() {
   document.getElementById("progress-fill").style.width = ((currentQuestion+1)/TOTAL_QUESTIONS*100) + "%";
   document.getElementById("progress-fill").style.background = getProgressColor(currentQuestion);
 
+  // Blank-slate every question. Previous answers are preserved in `answers[]`
+  // for scoring, but never replayed on the buttons — each load is a fresh decision.
   document.querySelectorAll(".likert-btn").forEach(btn => {
-    btn.classList.toggle("selected",
-      answers[currentQuestion] !== null && parseInt(btn.dataset.value) === answers[currentQuestion]);
+    btn.classList.remove("selected");
   });
 
   document.getElementById("prev-btn").disabled = currentQuestion === 0;
@@ -890,7 +1003,9 @@ function computeScores() {
   return scores;
 }
 
+const QUIZ_URL = "https://loringtonian.github.io/fork-quiz/";
 let lastScores = null;
+let lastArchetype = null;
 
 function showResults() {
   document.getElementById("question-screen").style.display = "none";
@@ -901,6 +1016,7 @@ function showResults() {
   lastScores = scores;
 
   const archetype = getArchetype(scores);
+  lastArchetype = archetype;
   document.getElementById("archetype-title").textContent = archetype.code;
   document.getElementById("archetype-tagline").textContent = archetype.name;
 
@@ -919,7 +1035,7 @@ function showResults() {
   const fmt = (n) => (n > 0 ? "+" : "") + n;
   const lines = DIMENSIONS.map(d => `${padLabel(DIM_LABELS[d].toUpperCase())} ${fmt(scores[d]).padStart(4, " ")}`);
   document.getElementById("share-text").textContent =
-    `${archetype.code} — ${archetype.name}\n\n${lines.join("\n")}\n\nhttps://loringtonian.github.io/fork-quiz/`;
+    `${archetype.code} — ${archetype.name}\n\n${lines.join("\n")}\n\n${QUIZ_URL}`;
 
   requestAnimationFrame(() => { rs.classList.add("visible"); });
 
@@ -980,6 +1096,76 @@ function copyShare() {
   });
 }
 
+function shareToX() {
+  if (!lastArchetype) return;
+  const text = `I'm ${lastArchetype.code} — ${lastArchetype.name}.\n\nFive forks are about to split humanity. Which ones will you take?`;
+  // Per-result URL so the X card pulls the archetype-specific avatar via OG meta.
+  // The /r/<CODE>/ stub redirects humans back to ?r=<CODE> which renders the result.
+  const shareUrl = `${QUIZ_URL}r/${lastArchetype.code}/`;
+  const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
+  window.open(intent, "_blank", "noopener");
+}
+
+function archetypeFromCode(code) {
+  if (typeof code !== "string" || code.length !== 5) return null;
+  const dims = ["CREATOR", "LONGEVITY", "BCI", "SPACE", "UPLOAD"];
+  const picked = {};
+  for (let i = 0; i < dims.length; i++) {
+    const fork = FORK_POLES[dims[i]];
+    const letter = code[i];
+    if (letter === fork.pos.letter) picked[dims[i]] = fork.pos;
+    else if (letter === fork.neg.letter) picked[dims[i]] = fork.neg;
+    else return null;
+  }
+  const adjectives = PHRASE_ADJECTIVE_ORDER.map(d => picked[d].label);
+  const noun = picked.CREATOR.label;
+  return { code, name: `The ${adjectives.join(", ")} ${noun}` };
+}
+
+function showSharedResult(code) {
+  const archetype = archetypeFromCode(code);
+  if (!archetype) return false;
+  document.body.classList.add("shared-view");
+  document.getElementById("start-screen").style.display = "none";
+  const rs = document.getElementById("results-screen");
+  rs.style.display = "flex";
+  document.getElementById("archetype-title").textContent = archetype.code;
+  document.getElementById("archetype-tagline").textContent = archetype.name;
+  const avatarFile = archetype.name.replace(/^The /, "").replace(/, /g, "_").replace(/ /g, "_") + ".png";
+  const avatarEl = document.getElementById("archetype-avatar");
+  avatarEl.style.display = "";
+  avatarEl.src = "assets/avatars/" + encodeURIComponent(avatarFile);
+  avatarEl.alt = archetype.name;
+  requestAnimationFrame(() => { rs.classList.add("visible"); });
+  return true;
+}
+
+function leaveSharedView() {
+  document.body.classList.remove("shared-view");
+  // Strip ?r=CODE so a refresh doesn't bounce back into the shared view.
+  // Use a relative path to stay same-origin (replaceState rejects cross-origin URLs).
+  if (history.replaceState) history.replaceState(null, "", location.pathname);
+  document.getElementById("results-screen").style.display = "none";
+  document.getElementById("results-screen").classList.remove("visible");
+  document.getElementById("start-screen").style.display = "flex";
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(QUIZ_URL).then(() => {
+    showShareFeedback("Link copied");
+  }).catch(() => {
+    showShareFeedback("Couldn't copy — use the share card above");
+  });
+}
+
+function showShareFeedback(msg) {
+  const fb = document.getElementById("share-feedback");
+  fb.textContent = msg;
+  fb.classList.add("visible");
+  clearTimeout(showShareFeedback._t);
+  showShareFeedback._t = setTimeout(() => fb.classList.remove("visible"), 2000);
+}
+
 function restartQuiz() {
   if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
   currentQuestion = 0;
@@ -1001,6 +1187,15 @@ document.addEventListener("keydown", e => {
 });
 
 initTheme();
+
+// Shared-result deep link: /?r=CODE renders the archetype directly.
+// Used when someone clicks an X share card → the /r/<CODE>/ stub redirects
+// here with the code in the query string.
+(function () {
+  const params = new URLSearchParams(location.search);
+  const code = params.get("r");
+  if (code) showSharedResult(code.toUpperCase());
+})();
 </script>
 </body>
 </html>
