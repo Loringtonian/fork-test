@@ -11,11 +11,11 @@
 <meta property="og:url" content="https://loringtonian.github.io/fork-test/">
 <meta property="og:title" content="Which Future Will You Inhabit? — The Five Forks Test">
 <meta property="og:description" content="Five forks are about to split humanity. Find out where you'll land across Creator, Longevity, BCI, Space, and Upload.">
-<meta property="og:image" content="https://loringtonian.github.io/fork-test/assets/hero.png">
+<meta property="og:image" content="https://loringtonian.github.io/fork-test/assets/hero-og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Which Future Will You Inhabit?">
 <meta name="twitter:description" content="Five forks. Thirty questions. Find out where you'll land.">
-<meta name="twitter:image" content="https://loringtonian.github.io/fork-test/assets/hero.png">
+<meta name="twitter:image" content="https://loringtonian.github.io/fork-test/assets/hero-og.jpg">
 
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -898,7 +898,7 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
 <!-- START SCREEN (full-bleed hero) -->
 <div id="start-screen">
   <div class="hero-wrap">
-    <img src="assets/hero.png" alt="Five divergent paths of light receding into a dark horizon" fetchpriority="high" />
+    <img src="assets/hero.webp" alt="Five divergent paths of light receding into a dark horizon" fetchpriority="high" />
   </div>
   <div class="start-content">
     <h1>Which Future<br>Will You Inhabit?</h1>
@@ -1066,11 +1066,13 @@ function getArchetype(scores) {
 }
 
 // Avatar filename derived from the name:
-// "The Spacebound, Long-lived, Augmented, Digital Builder" → "Spacebound_Long-lived_Augmented_Digital_Builder.png"
-function avatarPath(name) {
-  const file = name.replace(/^The /, "").replace(/, /g, "_").replace(/ /g, "_") + ".png";
-  return "assets/avatars/" + encodeURIComponent(file);
+// "The Spacebound, Long-lived, Augmented, Digital Builder" → "Spacebound_Long-lived_Augmented_Digital_Builder"
+// Web-optimized variants: lg/ (768px WebP) for the results avatar, thumb/ (320px WebP) for the gallery.
+function avatarFile(name, ext) {
+  return encodeURIComponent(name.replace(/^The /, "").replace(/, /g, "_").replace(/ /g, "_") + ext);
 }
+function avatarPath(name)  { return "assets/avatars/lg/"    + avatarFile(name, ".webp"); }
+function avatarThumb(name) { return "assets/avatars/thumb/" + avatarFile(name, ".webp"); }
 
 const TOTAL_QUESTIONS = QUESTIONS_SOURCE.length;
 const ADVANCE_DELAY_MS = 280;
@@ -1408,7 +1410,7 @@ function buildGallery() {
   if (galleryBuilt) return;
   document.getElementById("gallery-grid").innerHTML = allArchetypes().map(a => `
     <div class="gallery-card" data-code="${a.code}">
-      <img loading="lazy" src="${avatarPath(a.name)}" alt="${a.name}" onerror="this.style.visibility='hidden'">
+      <img loading="lazy" src="${avatarThumb(a.name)}" alt="${a.name}" onerror="this.style.visibility='hidden'">
       <div class="gc-code">${a.code}</div>
       <div class="gc-name">${a.name}</div>
     </div>`).join("");
