@@ -1450,13 +1450,14 @@ document.addEventListener("keydown", e => {
 
 initTheme();
 
-// Shared-result deep link: /?r=CODE renders the archetype directly.
-// Used when someone clicks an X share card → the /r/<CODE>/ stub redirects
-// here with the code in the query string.
+// Deep links: ?r=CODE renders that archetype's shared result (used by the
+// X share-card stubs); ?gallery opens the full 32-archetype gallery directly,
+// no quiz needed.
 (function () {
   const params = new URLSearchParams(location.search);
   const code = params.get("r");
   if (code) showSharedResult(code.toUpperCase());
+  if (params.has("gallery")) openGallery();
 })();
 </script>
 </body>
