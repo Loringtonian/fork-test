@@ -774,7 +774,7 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
 
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-template-columns: repeat(2, 1fr);   /* 2 columns × 16 rows for the 32 archetypes */
   gap: 14px;
   overflow-y: auto;
 }
@@ -908,7 +908,7 @@ body.shared-view .btn-take-quiz { display: inline-flex; }
   .share-text { font-size: 0.88rem; }
   .gallery-overlay { padding: 12px; }
   .gallery-panel { max-height: calc(100dvh - 24px); }
-  .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+  .gallery-grid { grid-template-columns: 1fr; gap: 12px; }   /* single column — scroll through all 32 */
 }
 
 /* Very narrow (iPhone SE etc.) */
